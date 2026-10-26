@@ -1,0 +1,12 @@
+{
+  "database": { "rules": "database.rules.json" },
+  "functions": { "source": "functions" },
+  "hosting": {
+    "public": ".",
+    "ignore": ["firebase.json", "database.rules.json", "functions/**", "ІНСТРУКЦІЯ.txt", "**/.*"],
+    "headers": [
+      { "source": "sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+      { "source": "index.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    ]
+  }
+}

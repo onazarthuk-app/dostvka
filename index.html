@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Дядько Доставка">
 <meta name="theme-color" content="#ffffff">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=1">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1">
-<link rel="manifest" href="manifest.webmanifest?v=1">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
+<link rel="manifest" href="manifest.webmanifest?v=2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Дядько Доставка">
 <title>Дядько Доставка</title>
@@ -20,6 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <style>
 :root{
   /* Палітра: білий / сірий / чорний. Червоний — лише проблеми й видалення, зелений — виконано, дзвінок, гроші */
@@ -556,6 +557,55 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
 .day-actions .da-add{color:var(--ink);font-weight:700}
 .cache-box{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow)}
 .cache-box .sr-sub{line-height:1.4}
+
+/* ── доставка і підйом, повернення, фото, підпис, повідомлення, карта ── */
+.sum-preview{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--r);background:var(--green-soft);margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text2)}
+.sum-preview b{font-family:'Roboto Condensed',sans-serif;font-size:21px;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum-preview small{display:block;font-size:11.5px;color:var(--text3);font-weight:500;margin-top:2px}
+.fg-inline{display:flex;gap:6px;align-items:stretch}
+.fg-inline input{flex:1;min-width:0}
+.st.partial{background:#fff;border-color:var(--green);border-style:dashed;color:var(--green)}
+.oc-return{font-size:13px;font-weight:600;color:var(--text);background:#fff;border:1.5px dashed var(--line2);border-radius:9px;padding:8px 10px;margin-bottom:10px;line-height:1.45}
+.oc-return b{color:var(--red);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.oc-return.ok b{color:var(--green)}
+.oc-proof{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:8px;line-height:1.5}
+.seg-pick button small{font-weight:500;opacity:.7}
+.day-actions{flex-wrap:wrap}
+.day-actions button{flex:1 1 auto}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px}
+.photos .ph{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--surface2);border:1px solid var(--line);max-width:100%;cursor:zoom-in}
+.photos .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.photos .ph.sign img{object-fit:contain;background:#fff}
+.photos .ph span{position:absolute;left:4px;bottom:4px;background:rgba(17,18,20,.75);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px}
+.photos .ph button{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:none;background:rgba(17,18,20,.75);color:#fff;font-size:12px;cursor:pointer}
+.photo-add{aspect-ratio:1;max-width:100%;border-radius:10px;border:1.5px dashed var(--line2);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:700;color:var(--text2);cursor:pointer;padding:4px;text-align:center}
+.photo-add svg{width:22px;height:22px}
+.sign-wrap{border:1.5px solid var(--line);border-radius:12px;background:#fff;position:relative;touch-action:none}
+.sign-wrap canvas{display:block;width:100%;height:170px;touch-action:none;border-radius:12px;cursor:crosshair}
+.sign-line{position:absolute;left:18px;right:18px;bottom:40px;border-bottom:1px dashed var(--line2);pointer-events:none}
+.sign-hint{position:absolute;left:18px;bottom:16px;font-size:11px;color:var(--text3);pointer-events:none}
+.sign-clear{position:absolute;top:8px;right:8px}
+.viewer{position:fixed;inset:0;z-index:800;background:rgba(17,18,20,.92);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+.viewer img{max-width:100%;max-height:100%;border-radius:8px;background:#fff}
+.send-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.send-btn{padding:13px 8px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);font-weight:800;font-size:14px;cursor:pointer;color:var(--text)}
+.send-btn.sms{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rem-item{display:flex;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--line)}
+.rem-item .ri{flex:1;min-width:0}
+.rem-item .ri b{display:block;font-size:14.5px}
+.rem-item .ri span{display:block;font-size:12.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.done-mark{color:var(--green);font-size:12px;font-weight:700}
+.map-box{height:360px;max-height:55vh;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-bottom:12px;background:var(--surface2);max-width:100%}
+.drv-pin{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font:800 12px 'Roboto',sans-serif}
+.drv-pin.old{background:#8b8d93}
+.loc-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text2);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.loc-pill i{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.loc-pill.on i{background:var(--green);box-shadow:0 0 0 3px rgba(21,128,61,.15)}
+.loc-pill span{flex:1;min-width:0}
+.tool-row{display:flex;gap:6px;flex-wrap:wrap}
+.sound-row{display:flex;gap:6px;flex-wrap:wrap}
+.tpl-help{font-size:11.5px;color:var(--text3);line-height:1.8}
+.tpl-help code{background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:0 4px;font-size:11px;color:var(--text)}
 </style>
 </head>
 <body>
@@ -659,6 +709,8 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
   <div class="stats-bar" id="statsBar"></div>
   <div class="toolbar">
     <div class="chips drv-hide" id="masterChips"></div>
+    <div class="tool-row edit-only"><button class="chip" onclick="openMap()">📍 Де водії</button><button class="chip" onclick="openReminders(tomorrowKey())">🔔 Нагадати клієнтам на завтра</button></div>
+    <div id="locPill" class="drv-only"></div>
     <div class="switch-row">
       <span>Лише дні з доставками</span>
       <label class="switch"><input type="checkbox" id="onlyBusy" onchange="toggleOnlyBusy(this.checked)"><span></span></label>
@@ -770,6 +822,37 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
     </div>
 
     <div class="settings-section adm-only">
+      <div class="sec-hd">Тарифи доставки і підйому</div>
+      <div class="clr-body">
+        <div class="fg"><label for="tFee">Доставка за замовчуванням, ₴</label><input type="number" id="tFee" min="0" placeholder="0" inputmode="numeric" onchange="saveTariff()"></div>
+        <div class="fg-row">
+          <div class="fg"><label for="tFloor">Без ліфта, ₴ за поверх</label><input type="number" id="tFloor" min="0" placeholder="0" inputmode="numeric" onchange="saveTariff()"></div>
+          <div class="fg"><label for="tLift">З ліфтом, ₴</label><input type="number" id="tLift" min="0" placeholder="0" inputmode="numeric" onchange="saveTariff()"></div>
+        </div>
+        <label class="check-row"><input type="checkbox" id="tFirst" checked onchange="saveTariff()"> Перший поверх без доплати</label>
+        <div class="muted">Ціни за одну одиницю (двері, мішок, пачку). Програма множить їх на кількість одиниць і поверхів, а логіст може змінити суму вручну.</div>
+      </div>
+    </div>
+
+    <div class="settings-section adm-only">
+      <div class="sec-hd">Повідомлення клієнтам</div>
+      <div class="clr-body">
+        <div class="fg"><label for="tplPhone">Телефон магазину</label><input type="tel" id="tplPhone" placeholder="032 000 00 00" onchange="saveTpl()"></div>
+        <div class="fg"><label for="tplOnway">Коли водій виїхав</label><textarea id="tplOnway" rows="4" onchange="saveTpl()"></textarea></div>
+        <div class="fg"><label for="tplRemind">Нагадування напередодні</label><textarea id="tplRemind" rows="4" onchange="saveTpl()"></textarea></div>
+        <div class="tpl-help">Програма підставляє: <code>{клієнт}</code> <code>{водій}</code> <code>{час}</code> <code>{день}</code> <code>{вікно}</code> <code>{адреса}</code> <code>{сума}</code> <code>{телефон_водія}</code> <code>{телефон_магазину}</code> <code>{номер}</code></div>
+        <button class="settings-btn" style="margin-top:10px" onclick="resetTpl()">Повернути стандартні тексти</button>
+      </div>
+    </div>
+
+    <div class="settings-section adm-only">
+      <div class="sec-hd">Підтвердження доставки і push</div>
+      <div class="settings-row"><div><div class="sr-lbl">Обов'язкове фото</div><div class="sr-sub">Водій не закриє доставку без фото</div></div><label class="switch"><input type="checkbox" id="oPhoto" onchange="saveOpts()"><span></span></label></div>
+      <div class="settings-row"><div><div class="sr-lbl">Обов'язковий підпис клієнта</div><div class="sr-sub">Для повної доставки</div></div><label class="switch"><input type="checkbox" id="oSign" onchange="saveOpts()"><span></span></label></div>
+      <div class="settings-row" style="display:block"><div class="sr-lbl">Ключ Web Push (VAPID)</div><div class="sr-sub" style="margin-bottom:8px">Firebase Console → Project settings → Cloud Messaging → Web Push certificates. Потрібен, щоб сповіщення приходили при закритій програмі.</div><input class="inp" id="oVapid" placeholder="BPx…" autocomplete="off" onchange="saveOpts()"></div>
+    </div>
+
+    <div class="settings-section adm-only">
       <div class="sec-hd">Очищення даних за період</div>
       <div class="clr-body">
         <div class="quick-row">
@@ -824,6 +907,7 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
         <option value="update">Редагування</option>
         <option value="status">Статуси водіїв</option>
         <option value="done">Доставлено</option>
+        <option value="msg">Повідомлення клієнтам</option>
         <option value="problem">Проблеми</option>
         <option value="delete">Видалення</option>
         <option value="cash">Каса</option>
@@ -888,6 +972,20 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
         <button class="prof-link" onclick="closeProfile();goTab('settings',4);goSub('log')">📋 Журнал дій</button>
       </div>
 
+      <div class="prof-sec">Сповіщення на цьому пристрої</div>
+      <div class="settings-section">
+        <div class="settings-row"><div><div class="sr-lbl">Звуки статусів</div><div class="sr-sub">Дверний дзвінок, клаксон, каса, тривога</div></div><label class="switch"><input type="checkbox" id="sndOn" onchange="setSoundOn(this.checked)"><span></span></label></div>
+        <div class="settings-row" style="display:block"><div class="sound-row">
+          <button class="settings-btn" onclick="playSound('assigned',true)">🔔 Нова доставка</button>
+          <button class="settings-btn" onclick="playSound('enroute',true)">🚚 Виїхав</button>
+          <button class="settings-btn" onclick="playSound('delivered',true)">💵 Доставлено</button>
+          <button class="settings-btn" onclick="playSound('partial',true)">↩ Частково</button>
+          <button class="settings-btn" onclick="playSound('problem',true)">⚠ Проблема</button>
+        </div></div>
+        <div class="settings-row"><div><div class="sr-lbl">Сповіщення телефону</div><div class="sr-sub" id="pushState">—</div></div><button class="settings-btn dark" id="pushBtn" onclick="enablePush()">Увімкнути</button></div>
+        <div class="settings-row drv-only"><div><div class="sr-lbl">Геопозиція для логіста</div><div class="sr-sub" id="geoState">—</div></div><label class="switch"><input type="checkbox" id="geoOn" onchange="setGeoOn(this.checked)"><span></span></label></div>
+      </div>
+
       <div class="prof-sec">Акаунт</div>
       <div class="prof-links">
         <button class="prof-link" onclick="changePassword()">🔒 Змінити пароль</button>
@@ -922,11 +1020,11 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
       <div class="fg"><label for="fPhone">Номер телефону</label><input type="tel" id="fPhone" placeholder="0XX XXX XX XX" autocomplete="off" inputmode="tel"></div>
       <div class="fg"><label for="fAddr">Адреса доставки</label><input type="text" id="fAddr" placeholder="вул. Наукова 7, кв. 41, під'їзд 2" autocomplete="off"></div>
       <div class="fg-row">
-        <div class="fg"><label for="fFloor">Поверх</label><input type="text" id="fFloor" placeholder="—" inputmode="numeric" autocomplete="off"></div>
-        <div class="fg"><label for="fLift">Ліфт</label><select id="fLift"><option value="">Не вказано</option><option value="yes">Є ліфт</option><option value="cargo">Вантажний ліфт</option><option value="no">Без ліфта</option></select></div>
+        <div class="fg"><label for="fFloor">Поверх</label><input type="text" id="fFloor" placeholder="—" inputmode="numeric" autocomplete="off" oninput="autoLift()"></div>
+        <div class="fg"><label for="fLift">Ліфт</label><select id="fLift" onchange="autoLift()"><option value="">Не вказано</option><option value="yes">Є ліфт</option><option value="cargo">Вантажний ліфт</option><option value="no">Без ліфта</option></select></div>
       </div>
       <div class="checks">
-        <label class="check-row"><input type="checkbox" id="fLifting"> Потрібен підйом</label>
+        <label class="check-row"><input type="checkbox" id="fLifting" onchange="autoLift()"> Потрібен підйом</label>
         <label class="check-row"><input type="checkbox" id="fUrgent"> Терміново</label>
       </div>
 
@@ -934,9 +1032,18 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
       <div class="fg"><label for="fItems">Товар</label><textarea id="fItems" placeholder="Двері «Порто» 80 см — 2 шт&#10;Коробка, лиштва"></textarea></div>
       <div class="fg-row">
         <div class="fg"><label for="fSize">Габарит</label><select id="fSize"><option value="s">Малий (легковик)</option><option value="m">Середній</option><option value="l">Великий (бус)</option><option value="xl">Негабарит</option></select></div>
-        <div class="fg"><label for="fPay">Оплата</label><select id="fPay"><option value="cash">Готівка при отриманні</option><option value="card">Термінал</option><option value="paid">Оплачено</option><option value="invoice">Безнал (рахунок)</option></select></div>
+        <div class="fg"><label for="fPay">Оплата</label><select id="fPay" onchange="updateDue()"><option value="cash">Готівка при отриманні</option><option value="card">Термінал</option><option value="paid">Оплачено</option><option value="invoice">Безнал (рахунок)</option></select></div>
       </div>
-      <div class="fg price-only"><label for="fAmount">До сплати, ₴</label><input type="number" id="fAmount" placeholder="0" min="0" inputmode="numeric"></div>
+      <div class="fg price-only"><label for="fAmount">Вартість товару, ₴</label><input type="number" id="fAmount" placeholder="0" min="0" inputmode="numeric" oninput="updateDue()"></div>
+
+      <div class="form-sec">Доставка і підйом</div>
+      <div class="fg-row">
+        <div class="fg price-only"><label for="fFee">Доставка, ₴</label><input type="number" id="fFee" min="0" placeholder="0" inputmode="numeric" oninput="updateDue()"></div>
+        <div class="fg"><label for="fUnits">Одиниць для підйому</label><input type="number" id="fUnits" min="0" placeholder="1" inputmode="numeric" oninput="autoLift()"></div>
+      </div>
+      <div class="fg price-only"><label for="fLiftCost">Підйом, ₴</label><div class="fg-inline"><input type="number" id="fLiftCost" min="0" placeholder="0" inputmode="numeric" oninput="this.dataset.manual='1';updateDue()"><button type="button" class="settings-btn edit-only" onclick="autoLift(true)">Розрахувати</button></div><div class="muted" id="liftHint"></div></div>
+      <label class="check-row price-only"><input type="checkbox" id="fSvcPaid" onchange="updateDue()"> Доставка й підйом уже оплачені</label>
+      <div class="sum-preview price-only" id="duePreview"></div>
 
       <div class="form-sec">Виконання</div>
       <div class="fg-row">
@@ -949,6 +1056,17 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
         <div class="fg"><label for="fProblem">Причина проблеми</label><input type="text" id="fProblem" autocomplete="off"></div>
       </div>
       <div class="fg"><label for="fNotes">Нотатки для водія</label><textarea id="fNotes" placeholder="Код домофону, дзвонити за 30 хв, під'їзд з двору..."></textarea></div>
+      <div id="fReturnBox">
+        <div class="form-sec">Не доставлено / повернення</div>
+        <div class="fg"><label for="fRetItems">Що не доставлено</label><textarea id="fRetItems" placeholder="Двері «Порто» 80 см — 1 шт" oninput="renderStatusPick()"></textarea></div>
+        <div class="fg-row">
+          <div class="fg"><label for="fRetReason">Причина</label><select id="fRetReason"><option value="">—</option><option>Брак / пошкодження</option><option>Клієнт відмовився</option><option>Не підійшло за розміром</option><option>Не влізло / немає підйому</option><option>Недовантажили на складі</option><option>Інше</option></select></div>
+          <div class="fg"><label for="fRetState">Що з товаром</label><select id="fRetState"><option value="">Чекає рішення</option><option value="back">Водій везе на склад</option><option value="stock">Прийнято на склад</option><option value="client">Залишено у клієнта</option><option value="redeliver">Довезено</option></select></div>
+        </div>
+        <button type="button" class="btn-sec edit-only" style="margin-bottom:12px" onclick="createRedelivery()">Довезти решту — створити нову доставку</button>
+      </div>
+      <div class="form-sec" id="fPhotosHd">Фото і підпис</div>
+      <div class="photos" id="fPhotos" style="margin-bottom:14px"></div>
       <div class="audit-box" id="auditBox" style="display:none"></div>
       <input type="hidden" id="fId" value="">
       <button class="btn-save edit-only" onclick="saveOrder()">Зберегти</button>
@@ -973,6 +1091,7 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
   </div>
 </div>
 
+<input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="onPhotos(this)">
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
@@ -986,6 +1105,7 @@ let currentMonth = new Date().getMonth();
 let masters = [];            // водії: [{name, phone, car}]
 let mapRegion = "Львів";
 let warehouse = "";
+let tariff = {}, tpl = {}, opts = {};
 let masterFilter = "";
 let onlyBusy = false;
 let pendingScrollToday = true;
@@ -998,7 +1118,7 @@ const MONTHS_GEN = ["Січня","Лютого","Березня","Квітня",
 const DAYS_UA = ["Нд","Пн","Вт","Ср","Чт","Пт","Сб"];
 const DAYS_FULL = ["Неділя","Понеділок","Вівторок","Середа","Четвер","П'ятниця","Субота"];
 
-const STATUS = {new:"Нове", assigned:"Призначено", loaded:"Завантажено", enroute:"В дорозі", delivered:"Доставлено", problem:"Проблема", cancelled:"Скасовано"};
+const STATUS = {new:"Нове", assigned:"Призначено", loaded:"Завантажено", enroute:"В дорозі", delivered:"Доставлено", partial:"Частково", problem:"Проблема", cancelled:"Скасовано"};
 const PAY = {cash:"Готівка", card:"Термінал", paid:"Оплачено", invoice:"Безнал"};
 const SIZE = {s:"Малий", m:"Середній", l:"Великий", xl:"Негабарит"};
 const LIFT = {yes:"ліфт", cargo:"вантажний ліфт", no:"без ліфта"};
@@ -1011,6 +1131,7 @@ const IC = {
   route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
   chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>',
   copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
   truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
 };
@@ -1029,6 +1150,7 @@ window.addEventListener("DOMContentLoaded", () => {
   let lastDay = fmtDate(new Date());
   setInterval(() => { const d = fmtDate(new Date()); if(d !== lastDay){ lastDay = d; renderAll(); } }, 60000);
   initFirebase();
+  registerSW();
 });
 
 // ═══════════════════════════════════════
@@ -1070,9 +1192,15 @@ function dayRouteUrl(list) {
   if(way.length) u += "&waypoints=" + encodeURIComponent(way.join("|"));
   return u;
 }
-function isDone(o)   { return o.status === "delivered"; }
+function isDone(o)   { return o.status === "delivered" || o.status === "partial"; }
 function isActive(o) { return o.status !== "cancelled"; }
-function isCash(o)   { return (o.pay || "cash") === "cash"; }
+// до сплати = товар (якщо платять при отриманні) + доставка й підйом (якщо ще не оплачені)
+function svcDue(o)   { return o.svcPaid ? 0 : (+o.fee||0) + (+o.liftCost||0); }
+function goodsDue(o) { return (!o.pay || o.pay === "cash" || o.pay === "card") ? (+o.amount||0) : 0; }
+function due(o)      { return goodsDue(o) + svcDue(o); }
+function dueMethod(o){ return o.pay === "card" ? "card" : "cash"; }
+function isCash(o)   { return dueMethod(o) === "cash" && due(o) > 0; }
+function isCard(o)   { return dueMethod(o) === "card" && due(o) > 0; }
 function driverNames() { return masters.map(m => m.name); }
 function driverInfo(name) { return masters.find(m => m.name === name) || null; }
 function myDriver() { return me && me.role === "driver" ? (me.driver || "") : null; }
@@ -1119,6 +1247,7 @@ function renderAll() {
   renderStats();
   renderSchedule();
   renderBadges();
+  renderLocPill();
   if(document.getElementById("tab-cash").classList.contains("on")) renderCash();
   if(document.getElementById("tab-search").classList.contains("on")) doSearch();
 }
@@ -1146,7 +1275,7 @@ function renderStats() {
   const done = act.filter(isDone).length;
   const prob = act.filter(o => o.status === "problem").length;
   const road = act.filter(o => o.status === "enroute").length;
-  const cashPlan = act.filter(isCash).reduce((s,o) => s + (+o.amount||0), 0);
+  const cashPlan = act.filter(isCash).reduce((s,o) => s + due(o), 0);
   const cashGot = act.filter(o => isCash(o) && isDone(o)).reduce((s,o) => s + (+o.collected||0), 0);
   const lbl = thisMonth ? "сьогодні" : "за місяць";
   const money = can("totals") || myDriver() !== null;
@@ -1219,7 +1348,7 @@ function renderSchedule() {
     const done = act.filter(isDone).length;
     const prob = act.filter(o => o.status === "problem").length;
     const unas = act.filter(o => !o.driver).length;
-    const dayCash = act.filter(isCash).reduce((s,o)=>s+(+o.amount||0),0);
+    const dayCash = act.filter(isCash).reduce((s,o)=>s+due(o),0);
     const open = dayOrders.length > 0 || isToday;
     let countTxt = act.length ? `${act.length} ${plural(act.length,"доставка","доставки","доставок")}` : (off.off ? off.label : "Вільний день");
     if(act.length && done) countTxt += ` · <span class="dc-ok">${done} ✓</span>`;
@@ -1247,6 +1376,7 @@ function renderSchedule() {
     html += `<div class="day-actions edit-only">
       <button class="da-add" onclick="openModalForDate('${key}')">+ ${dayOrders.length ? "Ще доставка" : "Додати доставку"}</button>
       ${act.length ? `<button onclick="copyDay('${key}')">📋 Маршрути</button>` : ""}
+      ${act.length && key > todayKey ? `<button onclick="openReminders('${key}')">🔔 Нагадати</button>` : ""}
       <button class="da-off" onclick="toggleDayOff('${key}')">${off.off ? "Зробити робочим" : "Вихідний"}</button>
     </div>`;
     html += `</div></div>`;
@@ -1276,15 +1406,23 @@ function orderCardHTML(o) {
     </div>
     <div class="oc-status"><span class="st ${st}">${STATUS[st]||st}</span>${o.num ? `<span class="oc-num">№ ${esc(o.num)}</span>` : ""}${o.urgent ? `<span class="urg">Терміново</span>` : ""}${!o.driver && isActive(o) && !isDone(o) ? `<span class="urg">Без водія</span>` : ""}</div>`;
   if(st === "problem") h += `<div class="oc-problem">⚠ ${esc(o.problem || "Проблема з доставкою")}</div>`;
+  if(o.retItems) h += `<div class="oc-return ${["stock","client","redeliver"].includes(o.retState) ? "ok" : ""}">↩ Не доставлено: ${esc(o.retItems)}${o.retReason ? " · " + esc(o.retReason) : ""}<br><b>${esc(RET_STATE[o.retState] || "Чекає рішення логіста")}</b></div>`;
   if(tel) h += `<a class="oc-phone" href="tel:${tel}" onclick="event.stopPropagation()"><span class="ic">${IC.phone}</span>${esc(phoneNice(o.phone))}</a>`;
   if(o.addr) h += `<a class="oc-addr" href="${mapsUrl(o.addr)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="ic">${IC.pin}</span><span class="txt">${esc(o.addr)}</span></a>`;
   if(o.items) h += `<div class="oc-items"><b>Товар</b>${esc(o.items)}</div>`;
   if(o.notes) h += `<div class="oc-notes">${esc(o.notes)}</div>`;
+  const proof = [];
+  if(o.notifiedAt) proof.push(`💬 клієнта повідомлено о ${timeHM(o.notifiedAt)}${o.eta ? ", буде ~" + esc(o.eta) : ""}`);
+  if(o.remindedAt && !isDone(o)) proof.push(`🔔 нагадано ${relTime(o.remindedAt)}`);
+  if(+o.photos) proof.push(`📷 ${+o.photos} фото`);
+  if(o.signed) proof.push("✍ підпис");
+  if(proof.length) h += `<div class="oc-proof">${proof.join(" · ")}</div>`;
   if(tel || o.addr) {
     h += `<div class="oc-actions">`;
     if(o.addr) h += `<a class="act" href="${routeUrl(o.addr)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${IC.route}Маршрут</a>`;
     if(o.addr) h += `<a class="act" href="${wazeUrl(o.addr)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${IC.truck}Waze</a>`;
-    if(tel) h += `<a class="act" href="viber://chat?number=${encodeURIComponent(tel)}" onclick="event.stopPropagation()">${IC.chat}Viber</a>`;
+    if(tel && can("status")) h += `<button class="act" onclick="event.stopPropagation();openNotify('${id}')">${IC.chat}Повідомити</button>`;
+    else if(tel) h += `<a class="act" href="viber://chat?number=${encodeURIComponent(tel)}" onclick="event.stopPropagation()">${IC.chat}Viber</a>`;
     h += `<button class="act" onclick="event.stopPropagation();copyOrder('${id}')">${IC.copy}Копіювати</button>`;
     h += `</div>`;
   }
@@ -1296,14 +1434,15 @@ function orderCardHTML(o) {
       <button class="flow-btn bad" onclick="openProblem('${id}')">Проблема</button>
     </div>`;
   }
-  if(isDone(o)) h += `<div class="oc-delivered">✓ Доставлено${o.deliveredAt ? " о " + timeHM(o.deliveredAt) : ""}${(isCash(o) || o.pay === "card") && (can("totals") || myDriver() !== null) ? " · отримано " + fmt(o.collected) + " ₴" : ""}</div>`;
+  if(isDone(o)) h += `<div class="oc-delivered">✓ Доставлено${o.deliveredAt ? " о " + timeHM(o.deliveredAt) : ""}${due(o) > 0 && (can("totals") || myDriver() !== null) ? " · отримано " + fmt(o.collected) + " ₴" : ""}</div>`;
   const tags = [];
   if(o.floor || o.lift) tags.push(`<div class="oc-tag">${o.floor ? esc(o.floor) + " пов." : ""}${o.floor && o.lift ? " · " : ""}${o.lift ? LIFT[o.lift] || "" : ""}</div>`);
   if(o.lifting) tags.push(`<div class="oc-tag dark">Підйом</div>`);
   if(o.size === "xl" || o.size === "l") tags.push(`<div class="oc-tag">${SIZE[o.size]}</div>`);
   if(o.pay === "paid" || o.pay === "invoice") tags.push(`<div class="oc-tag paid">${PAY[o.pay]}</div>`);
-  const showPrice = (can("totals") || myDriver() !== null) && +o.amount && (isCash(o) || o.pay === "card");
-  if(tags.length || showPrice) h += `<div class="oc-bottom"><div class="oc-tags">${tags.join("")}</div>${showPrice ? `<div class="oc-price"><small>${o.pay === "card" ? "термінал" : "готівка"}</small>${fmt(o.amount)} ₴</div>` : ""}</div>`;
+  if(svcDue(o) && (can("totals") || myDriver() !== null)) tags.push(`<div class="oc-tag">доставка${+o.liftCost ? " + підйом" : ""} ${fmt(svcDue(o))} ₴</div>`);
+  const showPrice = (can("totals") || myDriver() !== null) && due(o) > 0;
+  if(tags.length || showPrice) h += `<div class="oc-bottom"><div class="oc-tags">${tags.join("")}</div>${showPrice ? `<div class="oc-price"><small>${o.pay === "card" ? "термінал" : "готівка"}</small>${fmt(due(o))} ₴</div>` : ""}</div>`;
   const who = o.updatedByName || o.createdByName;
   if(who && myDriver() === null) h += `<div class="oc-meta">✎ ${esc(who)} · ${relTime(o.updatedAt || o.createdAt)}</div>`;
   return h + `</div>`;
@@ -1321,14 +1460,17 @@ function setStatus(id, status, extra, msg) {
   if(!o || !can("status")) return;
   Object.assign(o, {status}, extra || {});
   if(status !== "problem" && !(extra && "problem" in extra)) o.problem = "";
-  if(status === "delivered" && !o.deliveredAt) o.deliveredAt = Date.now();
-  if(status !== "delivered") { o.deliveredAt = 0; }
+  const closed = status === "delivered" || status === "partial";
+  if(closed && !o.deliveredAt) o.deliveredAt = Date.now();
+  if(!closed) { o.deliveredAt = 0; }
   saveData(); renderAll();
-  if(msg) toast(msg, status === "problem" ? "err" : status === "delivered" ? "ok" : "info", 2200);
+  playSound(status === "loaded" || status === "assigned" ? "info" : status);
+  if(msg) toast(msg, status === "problem" ? "err" : closed ? "ok" : "info", 2200);
 }
 function flowStep(id, to) {
   if(to === "deliver") return openDeliver(id);
   setStatus(id, to, null, STATUS[to]);
+  if(to === "enroute") setTimeout(() => openNotify(id, "onway"), 450);
 }
 function toggleDone(id) {
   const o = orders.find(x => x.id === id);
@@ -1338,30 +1480,6 @@ function toggleDone(id) {
   const prev = {status:o.status, collected:o.collected, deliveredAt:o.deliveredAt};
   setStatus(id, o.driver ? "assigned" : "new", {collected:0});
   toast("Позначку «доставлено» знято","info",4000,{label:"Повернути", fn:() => { Object.assign(o, prev); saveData(); renderAll(); }});
-}
-function openDeliver(id) {
-  const o = orders.find(x => x.id === id);
-  if(!o) return;
-  const money = isCash(o) || o.pay === "card";
-  document.getElementById("actTitle").textContent = "Доставлено";
-  document.getElementById("actBody").innerHTML = `
-    <div style="margin-bottom:14px"><div class="oc-client" style="font-size:18px">${esc(o.client)}</div><div class="muted" style="font-size:14px">${esc(o.addr||"")}</div></div>
-    ${money ? `<div class="fg"><label for="aSum">${isCash(o) ? "Отримано готівкою" : "Оплачено через термінал"}, ₴</label><input type="number" id="aSum" inputmode="numeric" value="${+o.amount||0}" style="font-size:24px;font-weight:800;font-family:'Roboto Condensed',sans-serif"></div>
-    <div class="muted" style="margin:-6px 0 12px">За замовленням: <b style="color:var(--text)">${fmt(o.amount)} ₴</b></div>`
-    : `<div class="oc-tag paid" style="display:inline-block;margin-bottom:14px;font-size:13px">${PAY[o.pay]||"Оплачено"}: гроші брати не потрібно</div>`}
-    <div class="fg"><label for="aNote">Коментар (за потреби)</label><input type="text" id="aNote" placeholder="Напр.: передав сусіду з кв. 42"></div>
-    <button class="btn-save green" onclick="confirmDeliver('${esc(id)}')">Підтвердити доставку</button>`;
-  openAct();
-  setTimeout(() => { const s = document.getElementById("aSum"); if(s) s.select(); }, 300);
-}
-function confirmDeliver(id) {
-  const o = orders.find(x => x.id === id); if(!o) return;
-  const s = document.getElementById("aSum"), note = document.getElementById("aNote").value.trim();
-  const sum = s ? (+s.value || 0) : 0;
-  const extra = {collected: sum, deliveredAt: Date.now()};
-  if(note) extra.notes = (o.notes ? o.notes + "\n" : "") + "Водій: " + note;
-  closeAct();
-  setStatus(id, "delivered", extra, "Доставку закрито ✓" + (s && sum !== +o.amount ? ` · різниця ${fmt(sum - (+o.amount||0))} ₴` : ""));
 }
 function openProblem(id) {
   const o = orders.find(x => x.id === id); if(!o) return;
@@ -1381,7 +1499,7 @@ function confirmProblem(id) {
   setStatus(id, "problem", {problem: text}, "Логіст бачить проблему");
 }
 function openAct() { document.getElementById("actModal").classList.add("on"); document.body.style.overflow = "hidden"; }
-function closeAct() { const m = document.getElementById("actModal"); if(m && m.classList.contains("on")) { m.classList.remove("on"); if(!document.getElementById("modal").classList.contains("on")) document.body.style.overflow = ""; } }
+function closeAct() { mapOpen = false; const m = document.getElementById("actModal"); if(m && m.classList.contains("on")) { m.classList.remove("on"); if(!document.getElementById("modal").classList.contains("on")) document.body.style.overflow = ""; } }
 
 function orderText(o) {
   const d = parseDate(o.date);
@@ -1392,7 +1510,7 @@ function orderText(o) {
     o.addr ? `📍 ${o.addr}${o.floor ? ", " + o.floor + " пов." : ""}${o.lift ? " (" + (LIFT[o.lift]||"") + ")" : ""}\n${mapsUrl(o.addr)}` : "",
     o.items ? `📦 ${o.items}` : "",
     o.lifting ? `⬆ Потрібен підйом` : "",
-    isCash(o) && +o.amount ? `💵 Готівка: ${fmt(o.amount)} ₴` : o.pay === "card" ? `💳 Термінал: ${fmt(o.amount)} ₴` : `✅ ${PAY[o.pay]||"Оплачено"}`,
+    isCash(o) ? `💵 Готівка: ${fmt(due(o))} ₴` : isCard(o) ? `💳 Термінал: ${fmt(due(o))} ₴` : `✅ ${PAY[o.pay]||"Оплачено"}`,
     o.notes ? `📝 ${o.notes}` : "",
     o.driver ? `🚚 ${o.driver}` : ""
   ].filter(Boolean).join("\n");
@@ -1411,7 +1529,7 @@ function copyDay(key) {
     const l = list.filter(o => o.driver === n).sort((a,b) => ((+a.seq||99)-(+b.seq||99)) || (a.time||"").localeCompare(b.time||""));
     if(!l.length) return;
     const inf = driverInfo(n);
-    t += `\n— ${n}${inf && inf.car ? " (" + inf.car + ")" : ""} —\n` + l.map((o,i) => `${+o.seq || i+1}. ${timeWin(o)} · ${o.addr||"—"} · ${o.client||""} ${phoneNice(o.phone)}${isCash(o) && +o.amount ? " · готівка " + fmt(o.amount) + " ₴" : o.pay === "card" ? " · термінал " + fmt(o.amount) + " ₴" : " · оплачено"}${o.lifting ? " · підйом" : ""}`).join("\n") + "\n";
+    t += `\n— ${n}${inf && inf.car ? " (" + inf.car + ")" : ""} —\n` + l.map((o,i) => `${+o.seq || i+1}. ${timeWin(o)} · ${o.addr||"—"} · ${o.client||""} ${phoneNice(o.phone)}${isCash(o) ? " · готівка " + fmt(due(o)) + " ₴" : isCard(o) ? " · термінал " + fmt(due(o)) + " ₴" : " · оплачено"}${o.lifting ? " · підйом" : ""}`).join("\n") + "\n";
     const r = dayRouteUrl(l.filter(o => !isDone(o)));
     if(r) t += `Маршрут: ${r}\n`;
   });
@@ -1446,7 +1564,8 @@ let formStatus = "new";
 function renderStatusPick() {
   document.getElementById("fStatus").innerHTML = Object.entries(STATUS).map(([k,l]) =>
     `<button type="button" class="${k} ${formStatus===k?"on":""}" onclick="pickStatus('${k}')">${l}</button>`).join("");
-  document.getElementById("fDoneRow").style.display = (formStatus === "delivered" || formStatus === "problem") ? "" : "none";
+  document.getElementById("fDoneRow").style.display = (formStatus === "delivered" || formStatus === "partial" || formStatus === "problem") ? "" : "none";
+  document.getElementById("fReturnBox").style.display = (formStatus === "partial" || document.getElementById("fRetItems").value.trim()) ? "" : "none";
 }
 function pickStatus(k) { if(!can("edit")) return; formStatus = k; renderStatusPick(); }
 function openModal(id) {
@@ -1465,6 +1584,8 @@ function openModal(id) {
     document.getElementById("editBtns").style.display = "none";
   }
   renderStatusPick();
+  autoLift(); updateDue();
+  renderModalPhotos(id || null);
   document.getElementById("modal").classList.add("on");
   document.body.style.overflow = "hidden";
 }
@@ -1484,7 +1605,10 @@ function closeModal() {
 function editOrder(id) { openModal(id); }
 
 function resetForm() {
-  ["fClient","fPhone","fAddr","fItems","fNotes","fId","fAmount","fFloor","fSeq","fCollected","fProblem"].forEach(id => document.getElementById(id).value = "");
+  ["fClient","fPhone","fAddr","fItems","fNotes","fId","fAmount","fFloor","fSeq","fCollected","fProblem","fUnits","fLiftCost","fRetItems","fRetReason","fRetState"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("fFee").value = +tariff.fee || "";
+  document.getElementById("fSvcPaid").checked = false;
+  document.getElementById("fLiftCost").dataset.manual = "";
   const t = new Date(), sel = new Date(currentYear, currentMonth, 1);
   document.getElementById("fDate").value = (t.getFullYear()===currentYear && t.getMonth()===currentMonth) ? fmtDate(t) : fmtDate(sel);
   document.getElementById("fTime").value  = "10:00";
@@ -1505,12 +1629,17 @@ function fillForm(o) {
   set("fFloor", o.floor||""); set("fLift", o.lift||""); set("fItems", o.items||""); set("fSize", o.size||"m");
   set("fPay", o.pay||"cash"); set("fAmount", o.amount||""); set("fSeq", +o.seq || ""); set("fCollected", o.collected ?? "");
   set("fProblem", o.problem||""); set("fNotes", o.notes||"");
+  set("fFee", o.fee||""); set("fUnits", o.units||""); set("fLiftCost", o.liftCost||"");
+  set("fRetItems", o.retItems||""); set("fRetReason", o.retReason||""); set("fRetState", o.retState||"");
+  document.getElementById("fSvcPaid").checked = !!o.svcPaid;
   document.getElementById("fLifting").checked = !!o.lifting;
   document.getElementById("fUrgent").checked = !!o.urgent;
   const ms = document.getElementById("fMaster");
   if(o.driver && ![...ms.options].some(op => op.value === o.driver)) ms.add(new Option(o.driver, o.driver));
   ms.value = o.driver||"";
   formStatus = o.status || "new";
+  const lc = document.getElementById("fLiftCost");
+  lc.dataset.manual = (+o.liftCost && +o.liftCost !== calcLiftFromForm()) ? "1" : "";
 }
 function populateMasters() {
   const sel = document.getElementById("fMaster");
@@ -1542,9 +1671,16 @@ function readForm() {
     status: formStatus,
     collected: +document.getElementById("fCollected").value || 0,
     problem: document.getElementById("fProblem").value.trim(),
-    notes: document.getElementById("fNotes").value.trim()
+    notes: document.getElementById("fNotes").value.trim(),
+    fee: +document.getElementById("fFee").value || 0,
+    units: +document.getElementById("fUnits").value || 0,
+    liftCost: +document.getElementById("fLiftCost").value || 0,
+    svcPaid: document.getElementById("fSvcPaid").checked,
+    retItems: document.getElementById("fRetItems").value.trim(),
+    retReason: document.getElementById("fRetReason").value,
+    retState: document.getElementById("fRetState").value
   };
-  if(!can("totals")) { delete r.amount; delete r.collected; }
+  if(!can("totals")) { delete r.amount; delete r.collected; delete r.fee; delete r.liftCost; delete r.svcPaid; }
   return r;
 }
 function saveOrder() {
@@ -1556,8 +1692,9 @@ function saveOrder() {
   if(f.driver && f.status === "new") f.status = "assigned";
   if(!f.driver && f.status === "assigned") f.status = "new";
   if(f.driver && !f.seq) f.seq = nextSeq(f.date, f.driver, id);
-  if(f.status === "delivered" && !(prev && prev.deliveredAt)) f.deliveredAt = Date.now();
-  if(f.status !== "delivered") f.deliveredAt = 0;
+  const closedF = f.status === "delivered" || f.status === "partial";
+  if(closedF && !(prev && prev.deliveredAt)) f.deliveredAt = Date.now();
+  if(!closedF) f.deliveredAt = 0;
   if(f.status !== "problem") f.problem = "";
   const entry = {...(prev||{}), ...f, id: id || uid()};
   if(id) {
@@ -1615,7 +1752,7 @@ function jumpToDate(dateStr) {
 // SEARCH
 // ═══════════════════════════════════════
 function renderStatusChips() {
-  const opts = [["","Усі"],["_open","Активні"],["problem","Проблеми"],["_unassigned","Без водія"],["enroute","В дорозі"],["delivered","Доставлено"],["cancelled","Скасовано"]];
+  const opts = [["","Усі"],["_open","Активні"],["problem","Проблеми"],["_unassigned","Без водія"],["enroute","В дорозі"],["delivered","Доставлено"],["partial","Частково"],["_returns","Повернення"],["cancelled","Скасовано"]];
   document.getElementById("statusChips").innerHTML = opts.filter(([k]) => !(k === "_unassigned" && myDriver() !== null)).map(([k,l]) =>
     `<button class="chip ${searchStatus===k?"on":""}" onclick="searchStatus='${k}';renderStatusChips();doSearch()">${l}</button>`).join("");
 }
@@ -1629,11 +1766,12 @@ function doSearch() {
   let res = visibleOrders(orders).filter(o => {
     if(searchStatus === "_open") return isActive(o) && !isDone(o);
     if(searchStatus === "_unassigned") return !o.driver && isActive(o) && !isDone(o) && o.date >= today;
+    if(searchStatus === "_returns") return !!o.retItems && !["stock","client","redeliver"].includes(o.retState);
     if(searchStatus) return o.status === searchStatus;
     return true;
   });
   if(q) res = res.filter(o =>
-    ["num","client","addr","driver","items","notes","date","problem"].some(k => String(o[k]||"").toLowerCase().includes(q)) ||
+    ["num","client","addr","driver","items","notes","date","problem","retItems"].some(k => String(o[k]||"").toLowerCase().includes(q)) ||
     (qd.length >= 3 && phoneDigits(o.phone).includes(qd))
   );
   res.sort((a,b) => b.date.localeCompare(a.date) || (a.time||"").localeCompare(b.time||""));
@@ -1658,13 +1796,13 @@ function cashRows(date) {
   const names = [...new Set([...driverNames(), ...list.map(o => o.driver).filter(Boolean)])];
   return names.map(n => {
     const mine = list.filter(o => o.driver === n);
-    const cashO = mine.filter(isCash), cardO = mine.filter(o => o.pay === "card");
+    const cashO = mine.filter(isCash), cardO = mine.filter(isCard);
     return {
       name: n, cnt: mine.length, done: mine.filter(isDone).length,
-      plan: cashO.reduce((s,o)=>s+(+o.amount||0),0),
-      expect: cashO.filter(isDone).reduce((s,o)=>s+(+o.amount||0),0),
+      plan: cashO.reduce((s,o)=>s+due(o),0),
+      expect: cashO.filter(isDone).reduce((s,o)=>s+due(o),0),
       got: cashO.filter(isDone).reduce((s,o)=>s+(+o.collected||0),0),
-      card: cardO.filter(isDone).reduce((s,o)=>s+(+o.collected||+o.amount||0),0),
+      card: cardO.filter(isDone).reduce((s,o)=>s+(+o.collected||due(o)),0),
       h: (cashData[date]||{})[fbKey(n)]
     };
   }).filter(r => r.cnt);
@@ -1750,16 +1888,16 @@ function exportRows(data, title, fname) {
   const wb = XLSX.utils.book_new();
   const money = can("totals");
   const wsData = [["Львівський дядько · Доставка — " + title],
-    ["День","Дата","З","До","№","Клієнт","Телефон","Адреса","Поверх","Ліфт","Підйом","Товар","Габарит","Водій","Черга","Статус","Оплата", ...(money ? ["Сума","Отримано"] : []),"Проблема","Нотатки"]];
+    ["День","Дата","З","До","№","Клієнт","Телефон","Адреса","Поверх","Ліфт","Підйом","Товар","Габарит","Водій","Черга","Статус","Оплата", ...(money ? ["Товар, ₴","Доставка","Підйом","До сплати","Отримано"] : []),"Проблема","Не доставлено","Нотатки"]];
   [...data].sort((a,b) => (a.date+(a.time||"")).localeCompare(b.date+(b.time||""))).forEach(o => {
-    wsData.push([DAYS_UA[parseDate(o.date).getDay()], o.date, o.time||"", o.timeTo||"", o.num||"", o.client||"", o.phone||"", o.addr||"", o.floor||"", LIFT[o.lift]||"", o.lifting?"так":"", o.items||"", SIZE[o.size]||"", o.driver||"", +o.seq||"", STATUS[o.status]||"", PAY[o.pay]||"", ...(money ? [+o.amount||0, +o.collected||0] : []), o.problem||"", o.notes||""]);
+    wsData.push([DAYS_UA[parseDate(o.date).getDay()], o.date, o.time||"", o.timeTo||"", o.num||"", o.client||"", o.phone||"", o.addr||"", o.floor||"", LIFT[o.lift]||"", o.lifting?"так":"", o.items||"", SIZE[o.size]||"", o.driver||"", +o.seq||"", STATUS[o.status]||"", PAY[o.pay]||"", ...(money ? [+o.amount||0, +o.fee||0, +o.liftCost||0, due(o), +o.collected||0] : []), o.problem||"", o.retItems ? o.retItems + (o.retReason ? " (" + o.retReason + ")" : "") : "", o.notes||""]);
   });
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-  ws["!cols"] = [{wch:4},{wch:11},{wch:6},{wch:6},{wch:7},{wch:18},{wch:15},{wch:34},{wch:6},{wch:10},{wch:7},{wch:30},{wch:10},{wch:14},{wch:6},{wch:12},{wch:10},...(money?[{wch:9},{wch:9}]:[]),{wch:22},{wch:28}];
+  ws["!cols"] = [{wch:4},{wch:11},{wch:6},{wch:6},{wch:7},{wch:18},{wch:15},{wch:34},{wch:6},{wch:10},{wch:7},{wch:30},{wch:10},{wch:14},{wch:6},{wch:12},{wch:10},...(money?[{wch:9},{wch:9},{wch:8},{wch:10},{wch:9}]:[]),{wch:22},{wch:24},{wch:28}];
   XLSX.utils.book_append_sheet(wb, ws, "Доставки");
   if(money) {
     const by = {};
-    data.forEach(o => { const m = o.driver||"Без водія"; (by[m] ||= {c:0,d:0,p:0,cash:0,card:0}); if(!isActive(o)) return; by[m].c++; if(isDone(o)) by[m].d++; if(o.status==="problem") by[m].p++; if(isDone(o) && isCash(o)) by[m].cash += +o.collected||0; if(isDone(o) && o.pay==="card") by[m].card += +o.collected||+o.amount||0; });
+    data.forEach(o => { const m = o.driver||"Без водія"; (by[m] ||= {c:0,d:0,p:0,cash:0,card:0}); if(!isActive(o)) return; by[m].c++; if(isDone(o)) by[m].d++; if(o.status==="problem") by[m].p++; if(isDone(o) && isCash(o)) by[m].cash += +o.collected||0; if(isDone(o) && isCard(o)) by[m].card += +o.collected||due(o); });
     const st = [["Водій","Доставок","Доставлено","Проблем","Готівка, ₴","Термінал, ₴"], ...Object.entries(by).map(([m,v]) => [m, v.c, v.d, v.p, v.cash, v.card])];
     const ws2 = XLSX.utils.aoa_to_sheet(st);
     ws2["!cols"] = [{wch:20},{wch:10},{wch:11},{wch:9},{wch:12},{wch:12}];
@@ -1788,6 +1926,13 @@ function renderSettings() {
   }).join("") || '<span class="muted">Додайте водіїв, щоб розподіляти доставки</span>';
   document.getElementById("mapRegion").value = mapRegion || "";
   document.getElementById("warehouse").value = warehouse || "";
+  const sv = (id, v) => { const el = document.getElementById(id); if(el && document.activeElement !== el) el.value = v; };
+  sv("tFee", tariff.fee || ""); sv("tFloor", tariff.floor || ""); sv("tLift", tariff.lift || "");
+  document.getElementById("tFirst").checked = tariff.firstFree !== false;
+  sv("tplPhone", tpl.shopPhone || ""); sv("tplOnway", tpl.onway || TPL_DEFAULT.onway); sv("tplRemind", tpl.remind || TPL_DEFAULT.remind);
+  document.getElementById("oPhoto").checked = !!opts.requirePhoto;
+  document.getElementById("oSign").checked = !!opts.requireSign;
+  sv("oVapid", opts.vapidKey || "");
   if(!document.getElementById("clrFrom").value) { const v = `${currentYear}-${pad(currentMonth+1)}`; document.getElementById("clrMonth").value = v; clrFromMonth(v); }
   else updateClrInfo();
 }
@@ -1949,6 +2094,19 @@ function seedData() {
     {date:d(-1),time:"10:00",timeTo:"12:00",num:"2399",client:"Юрій Пелех",phone:"067 789 51 56",addr:"вул. Грінченка 11",items:"Двері «Марк» — 3 шт",size:"l",pay:"cash",amount:18600,driver:"Олег Савчук",seq:1,status:"delivered",collected:18600,deliveredAt:now-26*3600e3}
   ];
   orders = raw.map((r,i) => ({lift:"",floor:"",lifting:false,urgent:false,notes:"",problem:"",collected:0,deliveredAt:0,...r, id:"seed_"+i, createdAt:now-86400e3, createdByName:"Демо Логіст"}));
+  const S = i => orders[i];
+  tariff = {fee:300, floor:50, lift:100, firstFree:true};
+  tpl = {shopPhone:"032 240 00 00"};
+  Object.assign(S(0), {fee:300, units:2, liftCost:500, signed:true});
+  Object.assign(S(1), {fee:300, notifiedAt: now-20*60e3, eta:"12:30"});
+  Object.assign(S(3), {fee:250, units:1, liftCost:100});
+  Object.assign(S(7), {remindedAt: now-2*3600e3});
+  Object.assign(S(9), {status:"partial", retItems:"Двері «Марк» 70 см — 1 шт", retReason:"Брак / пошкодження", retState:"back", collected:12400});
+  driverLocs = {
+    a: {name:"Андрій Коваль", lat:49.8121, lng:24.0563, ts: now-3*60e3},
+    b: {name:"Тарас Мельник", lat:49.8419, lng:24.0476, ts: now-6*60e3},
+    c: {name:"Олег Савчук", lat:49.8580, lng:23.9786, ts: now-40*60e3}
+  };
 }
 
 function importExcel(input) {
@@ -2057,9 +2215,10 @@ const firebaseConfig = {
 };
 const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Менеджер", driver:"Водій", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
 const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
-  ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"]];
-const BOOL_FIELDS = ["lifting","urgent"], NUM_FIELDS = ["amount","seq","collected","deliveredAt"];
-const DRIVER_FIELDS = ["status","collected","problem","notes","deliveredAt"];
+  ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"],["fee","Доставка"],["units","Одиниць підйому"],["liftCost","Підйом"],["svcPaid","Послуги оплачені"],
+  ["retItems","Не доставлено"],["retReason","Причина повернення"],["retState","Стан повернення"],["photos","Фото"],["signed","Підпис"],["notifiedAt","Клієнта повідомлено"],["eta","Орієнтовний час"],["remindedAt","Нагадування"]];
+const BOOL_FIELDS = ["lifting","urgent","svcPaid","signed"], NUM_FIELDS = ["amount","seq","collected","deliveredAt","fee","units","liftCost","photos","notifiedAt","remindedAt"];
+const DRIVER_FIELDS = ["status","collected","problem","notes","deliveredAt","retItems","retReason","retState","photos","signed","notifiedAt","eta","remindedAt"];
 
 let fbAuth = null, fbDb = null;
 let currentUid = null, me = null;
@@ -2120,6 +2279,18 @@ function initFirebase() {
 async function onSignedIn(user) {
   currentUid = user.uid;
   try {
+    const cached = JSON.parse(localStorage.getItem("ld_me") || "null");
+    if(cached && cached.uid === user.uid && !me) {
+      me = cached; loadLocal();
+      cloudOrders = Object.fromEntries(orders.map(o => [fbKey(o.id), JSON.parse(JSON.stringify(o))]));   // база для точкових змін офлайн
+      applyRoleUI();
+      document.getElementById("authScreen").classList.add("hide");
+      document.getElementById("connBadge").style.display = "flex";
+      document.getElementById("hdrUser").style.display = "";
+      renderHeaderUser(); renderAll(); hideSplash();
+    }
+  } catch(e) {}
+  try {
     const uref = fbDb.ref("app/users/" + user.uid);
     let rec = (await uref.once("value")).val();
     if(!rec) {
@@ -2146,6 +2317,7 @@ async function onSignedIn(user) {
       if(!v) return;
       const prevRole = me && me.role, prevDrv = me && me.driver;
       me = {...v, uid: user.uid};
+      try { const c = {...me}; delete c.fcm; localStorage.setItem("ld_me", JSON.stringify(c)); } catch(e) {}
       onRoleChanged(prevRole, prevDrv);
     });
   } catch(err) {
@@ -2181,6 +2353,7 @@ function onRoleChanged(prevRole, prevDrv) {
   }
   startData();
   if(can("admin")) startAdmin(); else stopAdmin();
+  geoSync(); pushSync();
   renderAll();
   if(document.getElementById("tab-settings").classList.contains("on")) renderSettings();
 }
@@ -2195,6 +2368,8 @@ function applyRoleUI() {
 function onSignedOut() {
   stopData(); stopAdmin();
   if(userRef) userRef.off();
+  if(geoWatch !== null) { navigator.geolocation.clearWatch(geoWatch); geoWatch = null; }
+  try { localStorage.removeItem("ld_me"); } catch(e) {}
   userRef = null; currentUid = null; me = null; loginLogged = false;
   orders = []; cloudOrders = {}; cloudMeta = null;
   document.body.classList.remove("role-admin","role-user","role-manager","role-driver","role-viewer");
@@ -2238,11 +2413,17 @@ function startData() {
       masters = Array.isArray(m.drivers) ? m.drivers.filter(x => x && x.name) : [];
       if(typeof m.region === "string") mapRegion = m.region;
       if(typeof m.warehouse === "string") warehouse = m.warehouse;
+      tariff = m.tariff || {}; tpl = m.tpl || {}; opts = m.opts || {};
     }
     renderChips(); renderSchedule();
     if(document.getElementById("tab-settings").classList.contains("on")) renderSettings();
   }, onDbError);
   refs.push(mref);
+  if(can("edit")) {
+    const lref = fbDb.ref("app/locations");
+    lref.on("value", s => { driverLocs = s.val() || {}; if(mapOpen) renderMapData(); }, err => console.warn("app/locations", err));
+    refs.push(lref);
+  }
   dataRefs = refs;
 }
 // Сповіщення: логіст бачить дії водіїв, водій — нові доставки на себе
@@ -2251,11 +2432,23 @@ function notifyChanges(next) {
   for(const k in next) {
     const n = next[k], p = cloudOrders[k];
     if(n.updatedBy === me.uid) continue;
-    if(can("edit") && p && p.status !== n.status && ["enroute","delivered","problem"].includes(n.status)) {
-      toast(`${n.driver || "Водій"}: ${STATUS[n.status].toLowerCase()} — ${n.client || ""}`, n.status === "problem" ? "err" : n.status === "delivered" ? "ok" : "info", 4500);
+    if(can("edit") && p && p.status !== n.status && ["enroute","delivered","partial","problem"].includes(n.status)) {
+      const title = `${n.driver || "Водій"}: ${STATUS[n.status].toLowerCase()}`;
+      toast(`${title} — ${n.client || ""}`, n.status === "problem" ? "err" : isDone(n) ? "ok" : "info", 4500);
+      playSound(n.status);
+      localNotify(title, `${n.client || ""} · ${n.addr || ""}${n.status === "problem" && n.problem ? "\n" + n.problem : ""}${n.status === "partial" && n.retItems ? "\nНе доставлено: " + n.retItems : ""}`, "st-" + k);
     }
-    if(me.role === "driver" && me.driver && n.driver === me.driver && (!p || p.driver !== me.driver) && isActive(n)) {
-      toast(`Нова доставка: ${n.addr || n.client}`, "info", 5000);
+    if(me.role === "driver" && me.driver) {
+      const mineN = n.driver === me.driver, mineP = !!p && p.driver === me.driver;
+      if(mineN && !mineP && isActive(n) && !isDone(n)) {
+        toast(`Нова доставка: ${n.addr || n.client}`, "info", 5000); playSound("assigned");
+        localNotify("Нова доставка", `${timeWin(n)} · ${n.addr || ""} · ${n.client || ""}`, "new-" + k);
+      } else if(mineN && mineP && (p.date !== n.date || p.time !== n.time || p.addr !== n.addr || (p.status !== n.status && n.status === "cancelled"))) {
+        toast(n.status === "cancelled" ? `Доставку скасовано: ${n.client || ""}` : `Логіст змінив доставку: ${n.client || ""}`, "warn", 4500); playSound("info");
+        localNotify(n.status === "cancelled" ? "Доставку скасовано" : "Зміна в доставці", `${n.client || ""} · ${timeWin(n)} · ${n.addr || ""}`, "chg-" + k);
+      } else if(mineP && !mineN) {
+        toast(`Доставку «${n.client || ""}» передано іншому водію`, "warn", 4500); playSound("info");
+      }
     }
   }
 }
@@ -2297,7 +2490,8 @@ function fbKey(id) { return String(id).replace(/[.#$\[\]\/]/g, "_"); }
 function clean(o) { const r = {}; for(const k in o) if(o[k] !== undefined && k !== "_k") r[k] = o[k]; return r; }
 function normVal(f, v) {
   if(BOOL_FIELDS.includes(f)) return v ? "так" : "ні";
-  if(f === "deliveredAt") return v ? "так" : "";
+  if(["deliveredAt","notifiedAt","remindedAt"].includes(f)) return v ? new Date(+v).toLocaleString("uk-UA",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+  if(f === "retState") return RET_STATE[v] || "";
   if(NUM_FIELDS.includes(f)) return String(+v || 0);
   if(f === "status") return STATUS[v] || STATUS.new;
   if(f === "pay") return PAY[v] || PAY.cash;
@@ -2308,13 +2502,13 @@ function normVal(f, v) {
 function diffFields(prev, cur) {
   const ch = [];
   ORDER_FIELDS.forEach(([f, label]) => {
-    if(!can("totals") && (f === "amount" || f === "collected") && me.role !== "driver") return;
+    if(!can("totals") && ["amount","collected","fee","liftCost","svcPaid"].includes(f) && me.role !== "driver") return;
     const a = normVal(f, prev[f]), b = normVal(f, cur[f]);
     if(a !== b) ch.push({f, label, from: a, to: b});
   });
   return ch;
 }
-function pickMeta(m) { return {drivers: (m && Array.isArray(m.drivers)) ? m.drivers : [], region: (m && typeof m.region === "string") ? m.region : "Львів", warehouse: (m && typeof m.warehouse === "string") ? m.warehouse : ""}; }
+function pickMeta(m) { return {drivers: (m && Array.isArray(m.drivers)) ? m.drivers : [], region: (m && typeof m.region === "string") ? m.region : "Львів", warehouse: (m && typeof m.warehouse === "string") ? m.warehouse : "", tariff: (m && m.tariff) || {}, tpl: (m && m.tpl) || {}, opts: (m && m.opts) || {}}; }
 function orderLabel(o) {
   const d = o.date ? parseDate(o.date) : null;
   return `${o.client || "—"}${d ? ", " + d.getDate() + " " + MONTHS_GEN[d.getMonth()].toLowerCase() : ""}${o.time ? " о " + o.time : ""}`;
@@ -2353,12 +2547,18 @@ function saveData(label) {
       for(const s in stamp) updates[`app/orders/${k}/${s}`] = stamp[s];
       const stCh = ch.find(c => c.f === "status");
       const onlyStatus = ch.every(c => DRIVER_FIELDS.includes(c.f)) && stCh;
+      const onlyMsg = ch.every(c => ["notifiedAt","eta","remindedAt"].includes(c.f));
+      const onlyPhotos = ch.every(c => ["photos","signed"].includes(c.f));
       let action = "update", text = "Змінив доставку: " + orderLabel(o);
       if(onlyStatus) {
-        action = o.status === "delivered" ? "done" : o.status === "problem" ? "problem" : "status";
-        text = `${STATUS[o.status]}: ${orderLabel(o)}` + (o.status === "delivered" && (isCash(o) || o.pay === "card") ? ` · отримано ${fmt(o.collected)} ₴` : "") + (o.status === "problem" && o.problem ? ` · ${o.problem}` : "");
-      }
-      events.push({action, orderId:o.id, client:o.client||"", date:o.date||"", text, changes: onlyStatus ? null : ch.map(c => ({l:c.label, a:c.from, b:c.to}))});
+        action = isDone(o) ? "done" : o.status === "problem" ? "problem" : "status";
+        text = `${STATUS[o.status]}: ${orderLabel(o)}` + (isDone(o) && due(o) > 0 ? ` · отримано ${fmt(o.collected)} ₴` : "") + (o.status === "problem" && o.problem ? ` · ${o.problem}` : "")
+          + (o.status === "partial" && o.retItems ? ` · не доставлено: ${o.retItems}` : "") + (ch.some(c => c.f === "photos") ? ` · фото: ${+o.photos}` : "") + (ch.some(c => c.f === "signed") && o.signed ? " · з підписом" : "");
+      } else if(onlyMsg) {
+        action = "msg";
+        text = (ch.some(c => c.f === "remindedAt") ? "Нагадав клієнту: " : "Повідомив клієнта, що водій їде: ") + orderLabel(o) + (o.eta && ch.some(c => c.f === "notifiedAt") ? ` (буде ~${o.eta})` : "");
+      } else if(onlyPhotos) { action = "status"; text = "Додав фото: " + orderLabel(o); }
+      events.push({action, orderId:o.id, client:o.client||"", date:o.date||"", text, changes: (onlyStatus || onlyMsg || onlyPhotos) ? null : ch.map(c => ({l:c.label, a:c.from, b:c.to}))});
     }
   }
   const deletes = Object.keys(cloudOrders).filter(k => !cur[k]);
@@ -2369,11 +2569,12 @@ function saveData(label) {
   deletes.forEach(k => {
     const o = cloudOrders[k];
     updates["app/orders/" + k] = null;
+    updates["app/photos/" + k] = null;
     events.push({action:"delete", orderId:o.id||k, client:o.client||"", date:o.date||"", text:"Видалив доставку: " + orderLabel(o)});
   });
 
   if(can("admin")) {
-    const before = pickMeta(cloudMeta), after = {drivers: masters, region: mapRegion, warehouse};
+    const before = pickMeta(cloudMeta), after = {drivers: masters, region: mapRegion, warehouse, tariff, tpl, opts};
     if(JSON.stringify(before) !== JSON.stringify(after)) {
       updates["app/meta"] = {...after, updatedAt: now, updatedBy: name};
       const parts = [];
@@ -2383,6 +2584,9 @@ function saveData(label) {
       if(removed.length) parts.push("прибрав водія: " + removed.join(", "));
       if(before.region !== after.region) parts.push(`регіон карт: «${before.region}» → «${after.region}»`);
       if(before.warehouse !== after.warehouse) parts.push(`склад: «${before.warehouse}» → «${after.warehouse}»`);
+      if(JSON.stringify(before.tariff) !== JSON.stringify(after.tariff)) parts.push(`тарифи: доставка ${fmt(tariff.fee)} ₴, поверх ${fmt(tariff.floor)} ₴, ліфт ${fmt(tariff.lift)} ₴`);
+      if(JSON.stringify(before.tpl) !== JSON.stringify(after.tpl)) parts.push("тексти повідомлень клієнтам");
+      if(JSON.stringify(before.opts) !== JSON.stringify(after.opts)) parts.push("параметри підтвердження доставки");
       if(cloudMeta && parts.length) events.push({action:"admin", text:"Налаштування — " + parts.join("; ")});
     }
   }
@@ -2435,7 +2639,7 @@ function writeLog(events, updates) {
 
 function revertToCloud() {
   orders = Object.keys(cloudOrders).map(k => ({...cloudOrders[k], id: cloudOrders[k].id || k}));
-  if(cloudMeta) { const m = pickMeta(cloudMeta); masters = m.drivers; mapRegion = m.region; warehouse = m.warehouse; }
+  if(cloudMeta) { const m = pickMeta(cloudMeta); masters = m.drivers; mapRegion = m.region; warehouse = m.warehouse; tariff = m.tariff; tpl = m.tpl; opts = m.opts; }
   renderAll();
 }
 async function resync() {
@@ -2452,6 +2656,7 @@ function saveLocal() {
     localStorage.setItem("ld_drivers", JSON.stringify(masters));
     localStorage.setItem("ld_region",  mapRegion);
     localStorage.setItem("ld_warehouse", warehouse);
+    localStorage.setItem("ld_meta2", JSON.stringify({tariff, tpl, opts}));
     if(!fbDb) { localStorage.setItem("ld_cash", JSON.stringify(cashData)); localStorage.setItem("ld_daysoff", JSON.stringify(daysOff)); }
   } catch(e) {}
 }
@@ -2461,6 +2666,7 @@ function loadLocal() {
     const m = localStorage.getItem("ld_drivers"); if(m) masters = JSON.parse(m);
     const r = localStorage.getItem("ld_region"); if(r !== null) mapRegion = r;
     const w = localStorage.getItem("ld_warehouse"); if(w !== null) warehouse = w;
+    const m2 = localStorage.getItem("ld_meta2"); if(m2) { const x = JSON.parse(m2); tariff = x.tariff || {}; tpl = x.tpl || {}; opts = x.opts || {}; }
     const dof = localStorage.getItem("ld_daysoff"); if(dof) daysOff = JSON.parse(dof);
     const c = localStorage.getItem("ld_cash"); if(c && !fbDb) cashData = JSON.parse(c);
   } catch(e) {}
@@ -2661,7 +2867,7 @@ function logout() {
 // ═══════════════════════════════════════
 // ADMIN PANELS: USERS + ACTIVITY LOG + ORDER HISTORY
 // ═══════════════════════════════════════
-const LOG_ICONS = {create:"➕", update:"✏️", done:"✅", status:"🚚", problem:"⚠️", delete:"🗑️", bulk:"📦", admin:"🛡️", login:"🔑", dayoff:"📅", cash:"💵"};
+const LOG_ICONS = {msg:"💬", create:"➕", update:"✏️", done:"✅", status:"🚚", problem:"⚠️", delete:"🗑️", bulk:"📦", admin:"🛡️", login:"🔑", dayoff:"📅", cash:"💵"};
 
 function goSub(name, silent) {
   document.querySelectorAll(".seg-btn").forEach(b => b.classList.toggle("on", b.dataset.sub === name));
@@ -2730,6 +2936,8 @@ function renderProfileSheet() {
   const rp = document.getElementById("profRole");
   rp.textContent = ROLES[me.role] || me.role; rp.className = "role-pill " + me.role;
   document.getElementById("profDriver").textContent = me.role === "driver" ? (me.driver ? "Ваші доставки: " + me.driver : "Ще не прив'язано до водія") : "";
+  document.getElementById("sndOn").checked = soundOn();
+  renderPushState(); renderLocPill();
   const showRole = DEMO || can("admin");
   document.getElementById("roleSec").style.display = showRole ? "" : "none";
   document.getElementById("roleSecHd").style.display = showRole ? "" : "none";
@@ -2873,6 +3081,517 @@ function renderAuditBox(o) {
   box.innerHTML = h;
   box.style.display = "block";
 }
+
+// ═══════════════════════════════════════
+// ДОСТАВКА І ПІДЙОМ
+// ═══════════════════════════════════════
+const RET_STATE = {back:"Водій везе на склад", stock:"Прийнято на склад", client:"Залишено у клієнта", redeliver:"Довезено"};
+const RET_REASONS = ["Брак / пошкодження","Клієнт відмовився","Не підійшло за розміром","Не влізло / немає підйому","Недовантажили на складі","Інше"];
+const TPL_DEFAULT = {
+  onway: "Добрий день, {клієнт}! Це «Львівський дядько». Водій {водій} вже їде до вас і буде орієнтовно о {час}. Адреса: {адреса}. {сума}Телефон водія: {телефон_водія}.",
+  remind: "Добрий день, {клієнт}! Нагадуємо: {день} {вікно} буде доставка від «Львівський дядько» за адресою {адреса}. {сума}Якщо час не підходить, зателефонуйте нам: {телефон_магазину}."
+};
+let driverLocs = {}, mapOpen = false;
+
+function gv(id) { return document.getElementById(id).value; }
+function tomorrowKey() { const d = new Date(); d.setDate(d.getDate()+1); return fmtDate(d); }
+function calcLift(floor, lift, units, lifting) {
+  if(!lifting) return 0;
+  const f = parseInt(floor) || 0, u = Math.max(1, parseInt(units) || 1);
+  if(lift === "yes" || lift === "cargo") return (+tariff.lift || 0) * u;
+  return Math.max(0, f - (tariff.firstFree === false ? 0 : 1)) * (+tariff.floor || 0) * u;
+}
+function calcLiftFromForm() { return calcLift(gv("fFloor"), gv("fLift"), gv("fUnits"), document.getElementById("fLifting").checked); }
+function autoLift(force) {
+  const el = document.getElementById("fLiftCost");
+  if(force) el.dataset.manual = "";
+  if(el.dataset.manual !== "1" && can("totals")) { const v = calcLiftFromForm(); el.value = v || ""; }
+  const hint = document.getElementById("liftHint");
+  hint.textContent = (+tariff.floor || +tariff.lift)
+    ? `Тариф за одиницю: ${fmt(tariff.floor)} ₴ за поверх без ліфта, ${fmt(tariff.lift)} ₴ з ліфтом${tariff.firstFree === false ? "" : ", 1-й поверх без доплати"}`
+    : "Тариф підйому ще не задано: адміністратор вказує його в «Ще → Тарифи»";
+  updateDue();
+}
+function updateDue() {
+  const box = document.getElementById("duePreview"); if(!box) return;
+  const o = {pay: gv("fPay"), amount: +gv("fAmount")||0, fee: +gv("fFee")||0, liftCost: +gv("fLiftCost")||0, svcPaid: document.getElementById("fSvcPaid").checked};
+  const d = due(o), parts = [];
+  if(goodsDue(o)) parts.push("товар " + fmt(goodsDue(o)));
+  if(svcDue(o)) parts.push("доставка й підйом " + fmt(svcDue(o)));
+  box.innerHTML = `<span>Отримати від клієнта ${d ? (dueMethod(o) === "card" ? "терміналом" : "готівкою") : ""}<small>${parts.join(" + ") || "нічого, усе оплачено"}</small></span><b>${fmt(d)} ₴</b>`;
+  box.style.background = d ? "" : "var(--surface2)";
+}
+function saveTariff() {
+  tariff = {fee: +gv("tFee")||0, floor: +gv("tFloor")||0, lift: +gv("tLift")||0, firstFree: document.getElementById("tFirst").checked};
+  saveData(); toast("Тарифи збережено","ok");
+}
+function saveTpl() {
+  tpl = {onway: gv("tplOnway").trim() || TPL_DEFAULT.onway, remind: gv("tplRemind").trim() || TPL_DEFAULT.remind, shopPhone: gv("tplPhone").trim()};
+  saveData(); toast("Тексти збережено","ok");
+}
+function resetTpl() {
+  document.getElementById("tplOnway").value = TPL_DEFAULT.onway;
+  document.getElementById("tplRemind").value = TPL_DEFAULT.remind;
+  saveTpl();
+}
+function saveOpts() {
+  opts = {requirePhoto: document.getElementById("oPhoto").checked, requireSign: document.getElementById("oSign").checked, vapidKey: gv("oVapid").trim()};
+  saveData(); toast("Збережено","ok"); pushSync();
+}
+
+// ── Довезти решту ──
+function createRedelivery() {
+  const o = orders.find(x => x.id === gv("fId")); if(!o) return;
+  const items = gv("fRetItems").trim() || o.retItems;
+  if(!items) { toast("Опишіть, що треба довезти","err"); document.getElementById("fRetItems").focus(); return; }
+  const next = parseDate(o.date); next.setDate(next.getDate()+1);
+  const date = fmtDate(next) < tomorrowKey() ? tomorrowKey() : fmtDate(next);
+  const {createdAt, createdBy, createdByName, updatedAt, updatedBy, updatedByName, ...base} = o;
+  const n = {...base, id: uid(), num: o.num ? o.num + "-Д" : nextNum(), date, items, status: o.driver ? "assigned" : "new",
+    amount: 0, fee: 0, liftCost: 0, units: 0, svcPaid: false, collected: 0, deliveredAt: 0, problem: "", retItems: "", retReason: "", retState: "",
+    photos: 0, signed: false, notifiedAt: 0, remindedAt: 0, eta: "", urgent: true,
+    notes: `Довезення до №${o.num || "—"}${o.retReason ? ". Причина: " + o.retReason : ""}`};
+  n.seq = nextSeq(date, n.driver, n.id);
+  o.retState = o.retState || "back";
+  orders.push(n);
+  saveData(); closeModal(); jumpToDate(date); renderAll();
+  toast("Довезення створено на " + fmtHuman(date) + ". Вкажіть суму, якщо клієнт доплачує", "ok", 4500);
+  setTimeout(() => openModal(n.id), 350);
+}
+
+// ═══════════════════════════════════════
+// ЗАКРИТТЯ ДОСТАВКИ: ФОТО, ПІДПИС, ЧАСТКОВО
+// ═══════════════════════════════════════
+let dlv = null, signCtx = null, photoTarget = null, demoPhotos = {}, modalPhotoCache = [];
+function safeImg(d) { return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(String(d||"")) ? d : ""; }
+function addTile(target) { return `<button type="button" class="photo-add" onclick="pickPhotos('${target}')">${IC.cam}Додати фото</button>`; }
+
+function openDeliver(id) {
+  const o = orders.find(x => x.id === id); if(!o) return;
+  dlv = {id, mode:"full", photos:[], signDirty:false};
+  const money = due(o) > 0;
+  document.getElementById("actTitle").textContent = "Закрити доставку";
+  document.getElementById("actBody").innerHTML = `
+    <div style="margin-bottom:12px"><div class="oc-client" style="font-size:18px">${esc(o.client)}</div><div class="muted" style="font-size:14px">${esc(o.addr||"")}</div></div>
+    <div class="seg-pick" id="dMode"><button type="button" class="on delivered" onclick="dlvMode('full')">Все доставлено</button><button type="button" onclick="dlvMode('partial')">Частково / повернення</button></div>
+    <div id="dPartial" style="display:none">
+      <div class="fg"><label for="dRet">Що не доставлено</label><textarea id="dRet" placeholder="Двері «Порто» 80 см — 1 шт"></textarea></div>
+      <div class="seg-pick" id="dReasons">${RET_REASONS.map((r,i) => `<button type="button" class="${i ? "" : "on"}" onclick="pickReason(this)">${esc(r)}</button>`).join("")}</div>
+      <label class="check-row"><input type="checkbox" id="dBack" checked> Везу товар назад на склад</label>
+    </div>
+    ${money ? `<div class="fg"><label for="aSum">${dueMethod(o) === "cash" ? "Отримано готівкою" : "Оплачено через термінал"}, ₴</label><input type="number" id="aSum" inputmode="numeric" value="${due(o)}" style="font-size:24px;font-weight:800;font-family:'Roboto Condensed',sans-serif"></div>
+    <div class="muted" style="margin:-6px 0 12px">До сплати: <b style="color:var(--text)">${fmt(due(o))} ₴</b>${svcDue(o) ? ` (з них доставка й підйом ${fmt(svcDue(o))} ₴)` : ""}</div>`
+    : `<div class="oc-tag paid" style="display:inline-block;margin-bottom:14px;font-size:13px">${PAY[o.pay] || "Оплачено"}: гроші брати не потрібно</div>`}
+    <div class="fg"><label>Фото товару чи накладної${opts.requirePhoto ? " *" : ""}</label><div class="photos" id="dPhotos"></div></div>
+    <div class="fg"><label>Підпис клієнта${opts.requireSign ? " *" : ""}</label>
+      <div class="sign-wrap"><canvas id="signPad"></canvas><div class="sign-line"></div><div class="sign-hint">Клієнт розписується пальцем</div><button type="button" class="settings-btn sign-clear" onclick="clearSign()">Очистити</button></div></div>
+    <div class="fg"><label for="aNote">Коментар (за потреби)</label><input type="text" id="aNote" placeholder="Напр.: передав сусіду з кв. 42"></div>
+    <button class="btn-save green" id="dOk" onclick="confirmDeliver('${esc(id)}')">Підтвердити доставку</button>`;
+  openAct();
+  renderDlvPhotos();
+  setTimeout(initSignPad, 330);
+}
+function dlvMode(m) {
+  if(!dlv) return;
+  dlv.mode = m;
+  document.querySelectorAll("#dMode button").forEach((b,i) => b.classList.toggle("on", (i === 0) === (m === "full")));
+  document.getElementById("dPartial").style.display = m === "partial" ? "" : "none";
+  document.getElementById("dOk").textContent = m === "partial" ? "Закрити частково" : "Підтвердити доставку";
+  if(m === "partial") setTimeout(() => document.getElementById("dRet").focus(), 50);
+}
+function renderDlvPhotos() {
+  const box = document.getElementById("dPhotos"); if(!box || !dlv) return;
+  box.innerHTML = dlv.photos.map((p,i) => `<div class="ph"><img src="${safeImg(p)}" alt="Фото ${i+1}"><button type="button" onclick="dlv.photos.splice(${i},1);renderDlvPhotos()" aria-label="Прибрати фото">✕</button></div>`).join("") + addTile("dlv");
+}
+function pickPhotos(target) {
+  photoTarget = target;
+  const inp = document.getElementById("photoInput"); inp.value = ""; inp.click();
+}
+async function onPhotos(inp) {
+  const files = [...inp.files].slice(0, 6);
+  if(!files.length) return;
+  const out = [];
+  for(const f of files) { try { out.push(await compressImage(f, 1280, 0.62)); } catch(e) { toast("Не вдалося прочитати фото","err"); } }
+  if(!out.length) return;
+  if(photoTarget === "dlv") { if(dlv) { dlv.photos.push(...out); renderDlvPhotos(); } return; }
+  const o = orders.find(x => x.id === photoTarget); if(!o) return;
+  await storePhotos(o.id, out.map(d => ({kind:"photo", data:d})));
+  o.photos = (+o.photos || 0) + out.length;
+  saveData(); renderAll(); renderModalPhotos(o.id);
+  toast(`Додано фото: ${out.length}`, "ok");
+}
+function compressImage(file, max, q) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", q));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("image")); };
+    img.src = url;
+  });
+}
+function initSignPad() {
+  const c = document.getElementById("signPad"); if(!c || !dlv) return;
+  const r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
+  const ctx = c.getContext("2d"); ctx.scale(dpr, dpr);
+  ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#111214"; ctx.fillStyle = "#111214";
+  signCtx = ctx;
+  let drawing = false, last = null;
+  const pos = e => { const b = c.getBoundingClientRect(); return {x: e.clientX - b.left, y: e.clientY - b.top}; };
+  c.onpointerdown = e => { e.preventDefault(); drawing = true; last = pos(e); try { c.setPointerCapture(e.pointerId); } catch(_){} ctx.beginPath(); ctx.arc(last.x, last.y, 1.2, 0, 7); ctx.fill(); dlv.signDirty = true; };
+  c.onpointermove = e => { if(!drawing) return; e.preventDefault(); const p = pos(e); ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke(); last = p; };
+  c.onpointerup = c.onpointercancel = () => { drawing = false; };
+}
+function clearSign() { const c = document.getElementById("signPad"); if(c && signCtx) { signCtx.clearRect(0, 0, c.width, c.height); if(dlv) dlv.signDirty = false; } }
+function signData() {
+  const c = document.getElementById("signPad"); if(!c || !dlv || !dlv.signDirty) return null;
+  const k = Math.min(1, 700 / c.width), s = document.createElement("canvas");
+  s.width = Math.round(c.width * k); s.height = Math.round(c.height * k);
+  const x = s.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, s.width, s.height); x.drawImage(c, 0, 0, s.width, s.height);
+  return s.toDataURL("image/jpeg", 0.75);
+}
+function confirmDeliver(id) {
+  const o = orders.find(x => x.id === id); if(!o || !dlv) return;
+  const partial = dlv.mode === "partial";
+  const retText = partial ? document.getElementById("dRet").value.trim() : "";
+  if(partial && !retText) { toast("Опишіть, що не доставлено","err"); document.getElementById("dRet").focus(); return; }
+  if(opts.requirePhoto && !dlv.photos.length && !+o.photos) { toast("Додайте хоча б одне фото","err"); return; }
+  const sign = signData();
+  if(opts.requireSign && !partial && !sign && !o.signed) { toast("Попросіть клієнта розписатися","err"); return; }
+  const s = document.getElementById("aSum"), note = document.getElementById("aNote").value.trim();
+  const sum = s ? (+s.value || 0) : 0;
+  const items = dlv.photos.map(d => ({kind:"photo", data:d}));
+  if(sign) items.push({kind:"sign", data:sign});
+  const extra = {collected: sum, deliveredAt: Date.now()};
+  if(dlv.photos.length) extra.photos = (+o.photos || 0) + dlv.photos.length;
+  if(sign) extra.signed = true;
+  if(partial) {
+    const r = document.querySelector("#dReasons button.on");
+    Object.assign(extra, {retItems: retText, retReason: r ? r.textContent : "", retState: document.getElementById("dBack").checked ? "back" : "client"});
+  }
+  if(note) extra.notes = (o.notes ? o.notes + "\n" : "") + "Водій: " + note;
+  closeAct();
+  if(items.length) storePhotos(id, items);
+  const diff = s ? sum - due(o) : 0;
+  setStatus(id, partial ? "partial" : "delivered", extra, (partial ? "Закрито частково" : "Доставку закрито ✓") + (diff ? ` · різниця ${diff > 0 ? "+" : ""}${fmt(diff)} ₴` : ""));
+  dlv = null;
+}
+async function storePhotos(orderId, items) {
+  const k = fbKey(orderId), now = Date.now();
+  const recs = items.map((it, i) => ({kind: it.kind, data: it.data, ts: now + i, by: myName()}));
+  if(!fbDb) { (demoPhotos[k] ||= []).push(...recs); return; }
+  const up = {};
+  recs.forEach(r => { up[`app/photos/${k}/${fbDb.ref().push().key}`] = r; });
+  try { await fbDb.ref().update(up); } catch(e) { toast("Фото не збереглися: " + e.message, "err", 5000); }
+}
+async function loadPhotos(orderId) {
+  const k = fbKey(orderId);
+  if(!fbDb) return demoPhotos[k] || [];
+  try {
+    const v = (await fbDb.ref("app/photos/" + k).once("value")).val() || {};
+    return Object.values(v).filter(r => r && safeImg(r.data)).sort((a,b) => (a.ts||0) - (b.ts||0));
+  } catch(e) { return []; }
+}
+async function renderModalPhotos(id) {
+  const box = document.getElementById("fPhotos"), hd = document.getElementById("fPhotosHd");
+  if(!id) { box.innerHTML = ""; box.style.display = hd.style.display = "none"; return; }
+  box.style.display = hd.style.display = "";
+  box.innerHTML = `<div class="muted">Завантажую фото…</div>`;
+  const list = await loadPhotos(id);
+  if(gv("fId") !== id) return;
+  modalPhotoCache = list;
+  const tiles = list.map((p,i) => `<div class="ph ${p.kind === "sign" ? "sign" : ""}" onclick="viewPhoto(${i})"><img src="${safeImg(p.data)}" alt="${p.kind === "sign" ? "Підпис клієнта" : "Фото доставки"}"><span>${p.kind === "sign" ? "підпис" : timeHM(p.ts)}</span></div>`).join("");
+  box.innerHTML = tiles + (can("status") ? addTile(id) : "") || `<div class="muted">Фото ще немає</div>`;
+}
+function viewPhoto(i) {
+  const p = modalPhotoCache[i]; if(!p) return;
+  const v = document.createElement("div"); v.className = "viewer"; v.innerHTML = `<img src="${safeImg(p.data)}" alt="">`;
+  v.onclick = () => v.remove(); document.body.appendChild(v);
+}
+
+// ═══════════════════════════════════════
+// ПОВІДОМЛЕННЯ КЛІЄНТАМ (Viber / SMS)
+// ═══════════════════════════════════════
+function fillTpl(t, o, extra) {
+  const inf = driverInfo(o.driver) || {};
+  const d = parseDate(o.date), human = `${d.getDate()} ${MONTHS_GEN[d.getMonth()].toLowerCase()}`;
+  const day = o.date === fmtDate(new Date()) ? "сьогодні" : o.date === tomorrowKey() ? `завтра, ${human},` : `${human} (${DAYS_FULL[d.getDay()].toLowerCase()})`;
+  const sum = due(o) > 0 ? `До оплати: ${fmt(due(o))} ₴ ${dueMethod(o) === "card" ? "(можна карткою)" : "готівкою"}. ` : "";
+  const map = {
+    "клієнт": o.client || "", "водій": (o.driver || "").split(" ")[0] || "наш водій", "час": (extra && extra.eta) || o.eta || "",
+    "день": day, "дата": day, "вікно": o.timeTo ? `з ${o.time} до ${o.timeTo}` : `о ${o.time || "—"}`, "адреса": o.addr || "",
+    "сума": sum, "телефон_водія": inf.phone ? phoneNice(inf.phone) : (tpl.shopPhone || ""), "телефон_магазину": tpl.shopPhone || "", "номер": o.num || ""
+  };
+  return t.replace(/\{([^}]+)\}/g, (m, k) => k in map ? map[k] : m).replace(/ +([.,!])/g, "$1").replace(/ {2,}/g, " ").trim();
+}
+function etaChoices() {
+  const now = Date.now();
+  return [15,30,45,60,90].map(m => {
+    const t = new Date(now + m*60000); t.setMinutes(Math.ceil(t.getMinutes()/5)*5);
+    return {m, t: `${pad(t.getHours())}:${pad(t.getMinutes())}`};
+  });
+}
+function openNotify(id, kind) {
+  const o = orders.find(x => x.id === id); if(!o) return;
+  if(!phoneIntl(o.phone)) { toast("У доставці немає телефону клієнта","err"); return; }
+  kind = kind || (o.date > fmtDate(new Date()) ? "remind" : "onway");
+  const onway = kind === "onway";
+  const etas = etaChoices();
+  document.getElementById("actTitle").textContent = onway ? "Повідомити клієнта" : "Нагадати клієнту";
+  document.getElementById("actBody").innerHTML = `
+    <div class="muted" style="margin-bottom:12px;font-size:14px"><b style="color:var(--text)">${esc(o.client || "")}</b> · ${esc(phoneNice(o.phone))}</div>
+    ${onway ? `<div class="fg"><label>Буде орієнтовно о</label><div class="seg-pick" id="nEta">${etas.map((e,i) => `<button type="button" class="${i === 1 ? "on" : ""}" data-t="${e.t}" onclick="pickEta(this,'${esc(id)}')">${e.t}<small> · ${e.m < 60 ? e.m + " хв" : (e.m/60).toString().replace(".",",") + " год"}</small></button>`).join("")}</div></div>` : ""}
+    <div class="fg"><label for="nText">Текст повідомлення</label><textarea id="nText" rows="6"></textarea></div>
+    <div class="send-row"><button class="send-btn sms" onclick="sendMsg('${esc(id)}','${kind}','sms')">SMS</button><button class="send-btn" onclick="sendMsg('${esc(id)}','${kind}','viber')">Viber</button><button class="send-btn" onclick="sendMsg('${esc(id)}','${kind}','copy')">Копіювати</button></div>
+    <div class="muted" style="margin-top:10px">Для Viber текст копіюється, і відкривається чат з клієнтом. Якщо поле порожнє, вставте текст і надішліть.</div>`;
+  document.getElementById("nText").value = fillTpl((onway ? tpl.onway : tpl.remind) || TPL_DEFAULT[kind], o, {eta: onway ? etas[1].t : ""});
+  openAct();
+}
+function pickEta(b, id) {
+  b.parentNode.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  const o = orders.find(x => x.id === id); if(!o) return;
+  document.getElementById("nText").value = fillTpl(tpl.onway || TPL_DEFAULT.onway, o, {eta: b.dataset.t});
+}
+function openMessenger(tel, text, via) {
+  if(via === "sms") { location.href = `sms:${tel}?&body=${encodeURIComponent(text)}`; return; }
+  if(via === "viber") { copyText(text); setTimeout(() => { location.href = `viber://chat?number=${encodeURIComponent(tel)}&draft=${encodeURIComponent(text)}`; }, 150); return; }
+  copyText(text, "Текст скопійовано");
+}
+function sendMsg(id, kind, via) {
+  const o = orders.find(x => x.id === id); if(!o) return;
+  const text = gv("nText").trim(); if(!text) { toast("Текст порожній","err"); return; }
+  openMessenger(phoneIntl(o.phone), text, via);
+  const eta = document.querySelector("#nEta button.on");
+  Object.assign(o, kind === "onway" ? {notifiedAt: Date.now(), eta: eta ? eta.dataset.t : (o.eta || "")} : {remindedAt: Date.now()});
+  saveData(); renderAll();
+  setTimeout(closeAct, 300);
+}
+let remKey = null;
+function openReminders(key) {
+  remKey = key;
+  document.getElementById("actTitle").textContent = "Нагадування клієнтам";
+  renderRemList(); openAct();
+}
+function renderRemList() {
+  const key = remKey, list = sortDay(orders.filter(o => o.date === key && isActive(o) && !isDone(o)));
+  const d = parseDate(key), sent = list.filter(o => o.remindedAt).length;
+  document.getElementById("actBody").innerHTML = `
+    <div class="muted" style="margin-bottom:6px">${d.getDate()} ${MONTHS_GEN[d.getMonth()].toLowerCase()}, ${DAYS_FULL[d.getDay()]} · надіслано ${sent} з ${list.length}</div>
+    <div>${list.map(o => {
+      const tel = phoneIntl(o.phone);
+      return `<div class="rem-item"><div class="ri"><b>${esc(o.client || "—")}</b><span>${esc(timeWin(o))} · ${esc(o.addr || "")}</span>${o.remindedAt ? `<div class="done-mark">✓ нагадано ${relTime(o.remindedAt)}</div>` : ""}</div>
+        ${tel ? `<button class="settings-btn dark" onclick="quickRemind('${esc(o.id)}','sms')">SMS</button><button class="settings-btn" onclick="quickRemind('${esc(o.id)}','viber')">Viber</button>` : `<span class="muted">немає тел.</span>`}</div>`;
+    }).join("") || `<div class="empty-state"><p>На цей день немає доставок для нагадування</p></div>`}</div>
+    <div class="muted" style="margin-top:12px">Текст береться з «Ще → Повідомлення клієнтам». Кожному клієнту відкривається SMS або Viber з готовим текстом, надсилаєте ви.</div>`;
+}
+function quickRemind(id, via) {
+  const o = orders.find(x => x.id === id); if(!o) return;
+  openMessenger(phoneIntl(o.phone), fillTpl(tpl.remind || TPL_DEFAULT.remind, o, {}), via);
+  o.remindedAt = Date.now(); saveData(); renderSchedule(); renderRemList();
+}
+function copyText(t, okMsg) {
+  const fallback = () => { const ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); if(okMsg) toast(okMsg, "ok"); } catch(e) {} ta.remove(); };
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(() => { if(okMsg) toast(okMsg, "ok"); }).catch(fallback); else fallback();
+}
+
+// ═══════════════════════════════════════
+// ДЕ ВОДІЇ: геопозиція + карта
+// ═══════════════════════════════════════
+let geoWatch = null, geoLast = null, geoErr = "", leafletMap = null, leafletLayer = null;
+function geoEnabled() { try { return localStorage.getItem("ld_geo") !== "0"; } catch(e) { return true; } }
+function geoSync() {
+  const should = !!(me && me.role === "driver" && me.driver && fbDb && geoEnabled() && "geolocation" in navigator);
+  if(should && geoWatch === null) {
+    geoWatch = navigator.geolocation.watchPosition(onGeo, err => {
+      geoErr = err.code === 1 ? "Доступ до геопозиції заборонено в налаштуваннях телефону" : "Не вдається визначити позицію";
+      renderLocPill();
+    }, {enableHighAccuracy:true, maximumAge:30000, timeout:30000});
+  } else if(!should && geoWatch !== null) { navigator.geolocation.clearWatch(geoWatch); geoWatch = null; }
+  renderLocPill();
+}
+function onGeo(p) {
+  geoErr = "";
+  const c = p.coords, now = Date.now();
+  const moved = geoLast ? distM(geoLast.lat, geoLast.lng, c.latitude, c.longitude) : 1e9;
+  if(geoLast && now - geoLast.ts < 45000 && moved < 150) return;
+  geoLast = {lat: c.latitude, lng: c.longitude, ts: now};
+  if(fbDb && me && me.driver) fbDb.ref("app/locations/" + fbKey(me.driver)).set({
+    name: me.driver, uid: me.uid, lat: +c.latitude.toFixed(5), lng: +c.longitude.toFixed(5),
+    acc: Math.round(c.accuracy || 0), speed: c.speed ? Math.round(c.speed * 3.6) : 0, ts: now
+  }).catch(() => {});
+  renderLocPill();
+}
+function distM(a, b, c, d) { const r = Math.PI/180, x = (d-b)*r*Math.cos((a+c)/2*r), y = (c-a)*r; return Math.sqrt(x*x + y*y) * 6371000; }
+function renderLocPill() {
+  const el = document.getElementById("locPill"); if(!el) return;
+  const g = document.getElementById("geoOn"); if(g) g.checked = geoEnabled();
+  if(!me || me.role !== "driver") { el.innerHTML = ""; return; }
+  const on = geoWatch !== null && !geoErr;
+  const txt = !fbDb ? "Геопозиція передається, коли програма підключена до бази"
+    : geoErr ? geoErr
+    : on ? (geoLast ? "Логіст бачить вас на карті · " + timeHM(geoLast.ts) : "Визначаю позицію…")
+    : "Геопозиція вимкнена, логіст вас не бачить";
+  el.innerHTML = `<div class="loc-pill ${on ? "on" : ""}"><i></i><span>${esc(txt)}</span>${fbDb ? `<button class="settings-btn" onclick="setGeoOn(${on ? "false" : "true"})">${on ? "Вимкнути" : "Увімкнути"}</button>` : ""}</div>`;
+  const gs = document.getElementById("geoState"); if(gs) gs.textContent = on ? "Передається логісту, поки програма відкрита" : "Не передається";
+}
+function setGeoOn(v) {
+  try { localStorage.setItem("ld_geo", v ? "1" : "0"); } catch(e) {}
+  if(!v && geoWatch !== null) { navigator.geolocation.clearWatch(geoWatch); geoWatch = null; geoLast = null; }
+  geoSync();
+}
+function openMap() {
+  document.getElementById("actTitle").textContent = "Де зараз водії";
+  document.getElementById("actBody").innerHTML = `<div class="map-box" id="mapBox"></div><div id="locList"></div>
+    <div class="muted" style="margin-top:10px">Позиція оновлюється, поки у водія відкрита програма. На iPhone — лише коли програма на екрані.</div>`;
+  openAct(); mapOpen = true;
+  (DEMO ? Promise.resolve(false) : ensureLeaflet()).then(ok => {
+    const b = document.getElementById("mapBox"); if(b && !ok) b.style.display = "none";
+    renderMapData(true);
+  });
+}
+function ensureLeaflet() {
+  if(window.L) return Promise.resolve(true);
+  return new Promise(res => {
+    const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"; document.head.appendChild(css);
+    const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+    s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s);
+    setTimeout(() => res(!!window.L), 8000);
+  });
+}
+function renderMapData(fit) {
+  const box = document.getElementById("locList"); if(!box) { mapOpen = false; return; }
+  const today = fmtDate(new Date());
+  const list = Object.values(driverLocs || {}).filter(l => l && l.lat).sort((a,b) => (b.ts||0) - (a.ts||0));
+  box.innerHTML = list.map(l => {
+    const old = Date.now() - (l.ts||0) > 15*60000;
+    const mine = orders.filter(o => o.date === today && o.driver === l.name && isActive(o)), done = mine.filter(isDone).length;
+    const cur = mine.find(o => o.status === "enroute");
+    return `<div class="drv-item" style="margin-bottom:8px"><div class="avatar" style="${old ? "background:#8b8d93" : ""}">${esc(initials(l.name))}</div>
+      <div class="di"><b>${esc(l.name)}</b><span>${old ? "давно не оновлювалось · " : ""}${relTime(l.ts)} · ${done}/${mine.length} точок${cur ? " · їде: " + esc(cur.addr || cur.client) : ""}</span></div>
+      <a class="settings-btn" href="https://www.google.com/maps/search/?api=1&query=${+l.lat},${+l.lng}" target="_blank" rel="noopener">Карта</a></div>`;
+  }).join("") || `<div class="empty-state"><p>Ще ніхто з водіїв не передає геопозицію.<br>Вона з'являється, коли водій відкриває програму.</p></div>`;
+  const el = document.getElementById("mapBox");
+  if(!window.L || !el || el.style.display === "none") return;
+  if(!leafletMap || leafletMap.getContainer() !== el) {
+    if(leafletMap) leafletMap.remove();
+    leafletMap = L.map(el).setView([49.8397, 24.0297], 12);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom: 19, attribution: "© OpenStreetMap"}).addTo(leafletMap);
+    leafletLayer = L.layerGroup().addTo(leafletMap);
+    fit = true;
+  }
+  leafletLayer.clearLayers();
+  const pts = [];
+  list.forEach(l => {
+    const old = Date.now() - (l.ts||0) > 15*60000;
+    const icon = L.divIcon({className: "", html: `<div class="drv-pin ${old ? "old" : ""}">${esc(initials(l.name))}</div>`, iconSize: [34,34], iconAnchor: [17,17]});
+    L.marker([+l.lat, +l.lng], {icon}).bindPopup(`<b>${esc(l.name)}</b><br>${relTime(l.ts)}`).addTo(leafletLayer);
+    pts.push([+l.lat, +l.lng]);
+  });
+  if(fit && pts.length) leafletMap.fitBounds(pts, {padding: [40,40], maxZoom: 14});
+  setTimeout(() => leafletMap && leafletMap.invalidateSize(), 250);
+}
+
+// ═══════════════════════════════════════
+// ЗВУКИ (синтезуються в браузері, без файлів)
+// ═══════════════════════════════════════
+let AC = null;
+function soundOn() { try { return localStorage.getItem("ld_sound") !== "0"; } catch(e) { return true; } }
+function setSoundOn(v) { try { localStorage.setItem("ld_sound", v ? "1" : "0"); } catch(e) {} if(v) playSound("delivered", true); }
+function audio() {
+  if(!AC) { const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; AC = new C(); }
+  if(AC.state === "suspended") AC.resume().catch(() => {});
+  return AC;
+}
+document.addEventListener("pointerdown", () => { if(soundOn()) audio(); }, {once: true, capture: true});
+function tone(ac, {f, t = 0, d = .3, type = "sine", v = .25, a = .005, glide}) {
+  const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + t;
+  o.type = type; o.frequency.setValueAtTime(f, s);
+  if(glide) o.frequency.exponentialRampToValueAtTime(glide, s + d);
+  g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(v, s + a); g.gain.exponentialRampToValueAtTime(0.0001, s + d);
+  o.connect(g).connect(ac.destination); o.start(s); o.stop(s + d + .05);
+}
+// дзвіночок: основний тон і негармонічні обертони, як у справжнього дзвінка
+function bell(ac, f, t, d = 1.2, v = .22) {
+  [[1,1],[2.76,.32],[5.4,.1],[8.93,.04]].forEach(([k,m]) => tone(ac, {f: f*k, t, d: k > 2 ? d/2 : d, v: v*m, a: .003}));
+}
+function noiseBurst(ac, t, d, v, hp) {
+  const len = Math.floor(ac.sampleRate * d), b = ac.createBuffer(1, len, ac.sampleRate), ch = b.getChannelData(0);
+  for(let i = 0; i < len; i++) ch[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 2);
+  const src = ac.createBufferSource(); src.buffer = b;
+  const f = ac.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp || 2500;
+  const g = ac.createGain(); g.gain.value = v;
+  src.connect(f).connect(g).connect(ac.destination); src.start(ac.currentTime + t);
+}
+const SOUNDS = {
+  // нова доставка: дверний дзвінок «дінь-дон» (магазин дверей все-таки)
+  assigned: ac => { bell(ac, 659.25, 0, 1.3, .24); bell(ac, 523.25, .45, 1.8, .24); },
+  // виїхав: два гудки клаксона бусика
+  enroute: ac => { [0, .24].forEach(t => { tone(ac, {f: 392, t, d: .17, type: "square", v: .06}); tone(ac, {f: 494, t, d: .17, type: "square", v: .05}); tone(ac, {f: 196, t, d: .17, type: "sawtooth", v: .03}); }); },
+  // доставлено: касовий апарат «дзинь» — клац, висхідний акорд і монетка
+  delivered: ac => { noiseBurst(ac, 0, .05, .3, 3200); noiseBurst(ac, .07, .04, .2, 4000); [1046.5, 1318.5, 1568, 2093].forEach((f,i) => tone(ac, {f, t: .1 + i*.07, d: .45, type: "triangle", v: .11})); bell(ac, 2637, .42, .9, .07); },
+  // частково: спокійне «так, але…»
+  partial: ac => { tone(ac, {f: 587.3, d: .22, type: "triangle", v: .16}); tone(ac, {f: 493.9, t: .18, d: .22, type: "triangle", v: .15}); tone(ac, {f: 587.3, t: .36, d: .45, type: "triangle", v: .13}); },
+  // проблема: тривожний двотон, двічі
+  problem: ac => { [0, .38].forEach(t => { tone(ac, {f: 880, t, d: .16, type: "sawtooth", v: .055}); tone(ac, {f: 622.3, t: t + .17, d: .18, type: "sawtooth", v: .055}); }); },
+  // дрібні зміни: коротке «блюп»
+  info: ac => { tone(ac, {f: 660, d: .14, v: .14, glide: 990}); tone(ac, {f: 1320, t: .1, d: .2, v: .08}); }
+};
+function playSound(kind, force) {
+  if(!force && !soundOn()) return;
+  const fn = SOUNDS[kind] || (["loaded","assigned","new","cancelled"].includes(kind) ? SOUNDS.info : null);
+  if(!fn) return;
+  const ac = audio(); if(!ac) return;
+  try { fn(ac); } catch(e) {}
+  if(navigator.vibrate && (kind === "problem" || kind === "assigned")) { try { navigator.vibrate(kind === "problem" ? [120,80,120] : [60]); } catch(e) {} }
+}
+
+// ═══════════════════════════════════════
+// СПОВІЩЕННЯ: офлайн-кеш (sw.js), системні та push
+// ═══════════════════════════════════════
+let swReg = null;
+function registerSW() {
+  if(DEMO || !("serviceWorker" in navigator) || location.protocol === "file:") return;
+  navigator.serviceWorker.register("sw.js").then(r => { swReg = r; pushSync(); }).catch(e => console.warn("sw", e));
+}
+function localNotify(title, body, tag) {
+  if(!("Notification" in window) || Notification.permission !== "granted" || !document.hidden) return;
+  const o = {body, tag, icon: "icon-192.png", badge: "favicon-32.png", renotify: true};
+  try { if(swReg) swReg.showNotification(title, o); else new Notification(title, o); } catch(e) {}
+}
+async function enablePush() {
+  if(!("Notification" in window)) { toast("Браузер не підтримує сповіщення. На iPhone спершу додайте програму на головний екран", "warn", 6000); return; }
+  const p = await Notification.requestPermission();
+  renderPushState();
+  if(p !== "granted") { toast("Сповіщення заборонено. Дозвольте їх у налаштуваннях браузера", "err", 5000); return; }
+  toast("Сповіщення увімкнено ✓", "ok"); playSound("assigned", true);
+  await pushSync(true); renderPushState();
+}
+async function pushSync(verbose) {
+  if(!fbDb || !me || !me.uid || !swReg || typeof firebase === "undefined" || !firebase.messaging) return;
+  if(!("Notification" in window) || Notification.permission !== "granted") return;
+  if(!opts.vapidKey) { if(verbose) toast("Щоб сповіщення приходили при закритій програмі, адміністратор має додати ключ VAPID", "info", 5000); return; }
+  try {
+    const messaging = firebase.messaging();
+    const token = await messaging.getToken({vapidKey: opts.vapidKey, serviceWorkerRegistration: swReg});
+    if(token) await fbDb.ref(`app/users/${me.uid}/fcm/${fbKey(token.slice(-24))}`).set({token, ts: Date.now(), ua: navigator.userAgent.slice(0, 80)});
+    messaging.onMessage(() => {});   // коли програма відкрита, показуємо власні тости й звук
+  } catch(e) { console.warn("push", e); if(verbose) toast("Push: " + e.message, "err", 5000); }
+}
+function renderPushState() {
+  const el = document.getElementById("pushState"), b = document.getElementById("pushBtn"); if(!el) return;
+  const perm = "Notification" in window ? Notification.permission : "unsupported";
+  el.textContent = perm === "granted" ? (opts.vapidKey && !DEMO ? "Увімкнено, приходять і при закритій програмі" : "Увімкнено, поки програма відкрита у фоні")
+    : perm === "denied" ? "Заборонено в налаштуваннях браузера"
+    : perm === "unsupported" ? "Браузер не підтримує. На iPhone додайте програму на головний екран"
+    : "Вимкнено";
+  b.style.display = (perm === "default") ? "" : "none";
+}
+
 </script>
 </body>
 </html>
