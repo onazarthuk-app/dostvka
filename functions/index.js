@@ -43,6 +43,15 @@ exports.orderPush = onValueWritten(
       tokensOf((u, uid) => ["admin", "user", "manager"].includes(u.role) && uid !== after.updatedBy).forEach((t) =>
         msgs.push({ t, title: `${after.driver || "Водій"}: ${STATUS[after.status]}`, body: `${after.client || ""} · ${after.addr || ""}${extra}` }));
     }
+    // 3) Складу: нове замовлення, яке треба зібрати, і повернення, яке везуть назад
+    if (!before && !closed) {
+      tokensOf((u) => u.role === "warehouse").forEach((t) =>
+        msgs.push({ t, title: "Зібрати замовлення", body: `${after.date} ${when} · ${(after.items || "").split("\n")[0]}` }));
+    }
+    if (after.retItems && after.retState === "back" && (!before || before.retState !== "back")) {
+      tokensOf((u) => u.role === "warehouse").forEach((t) =>
+        msgs.push({ t, title: "Повернення на склад", body: `${after.driver || "Водій"} · ${after.retItems}` }));
+    }
     if (!msgs.length) return;
 
     const res = await getMessaging().sendEach(msgs.map((m) => ({

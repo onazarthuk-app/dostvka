@@ -1,6 +1,6 @@
 // Львівський дядько · Доставка — service worker
 // 1) програма відкривається без інтернету  2) push-сповіщення через Firebase Cloud Messaging
-const CACHE = "ld-v2";
+const CACHE = "ld-v3";
 const CORE = ["./", "index.html", "manifest.webmanifest", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png"];
 
 try {
