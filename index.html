@@ -640,6 +640,101 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
 .wh-btn.give{background:var(--ink);border-color:var(--ink);color:#fff}
 .wh-btn:disabled{opacity:.4;cursor:not-allowed}
 .wh-given{font-size:13px;font-weight:700;color:var(--green);margin-top:2px}
+
+/* ══════════ НОУТБУК / КОМП'ЮТЕР ══════════ */
+.desk-only{display:none!important}
+.bd-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.bd-date{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bd-day{min-width:250px;text-align:center}
+.bd-day b{display:block;font-family:'Roboto Condensed',sans-serif;font-size:23px;font-weight:900;line-height:1.1}
+.bd-day span{font-size:11px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+.bd-pick{width:auto!important;padding:7px 10px!important;font-size:14px!important}
+.bd-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg-mini{display:flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg-mini button{border:none;background:none;padding:7px 13px;border-radius:8px;font-weight:700;font-size:13px;color:var(--text2);cursor:pointer}
+.seg-mini button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;height:calc(100vh - 290px);min-height:440px;align-items:stretch}
+.bd-col{flex:1 0 262px;max-width:380px;display:flex;flex-direction:column;background:var(--surface2);border:1px solid var(--line);border-radius:14px;min-height:0;transition:box-shadow var(--t),border-color var(--t)}
+.bd-col.none{background:#fff;border:1.5px dashed var(--line2)}
+.bd-col.drop{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.bd-col-hd{display:flex;align-items:center;gap:10px;padding:12px 12px 10px}
+.bd-col-hd .avatar{width:36px;height:36px;font-size:12.5px;background:var(--ink);color:#fff}
+.bd-col.none .bd-col-hd .avatar{background:var(--red)}
+.bd-col-hd .di{flex:1;min-width:0}
+.bd-col-hd .di b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-col-hd .di span{display:block;font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-col-hd .icon-a{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0}
+.bd-col-hd .icon-a svg{width:15px;height:15px}
+.bd-col-meta{display:flex;justify-content:space-between;gap:8px;padding:0 12px 8px;font-size:12px;color:var(--text2);font-weight:700;font-variant-numeric:tabular-nums}
+.bd-col-meta .g{color:var(--green)}
+.bd-prog{height:3px;background:var(--surface3);margin:0 12px;border-radius:2px;overflow:hidden}
+.bd-prog i{display:block;height:100%;background:var(--green)}
+.bd-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:60px}
+.bd-list::-webkit-scrollbar{width:6px}.bd-list::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+.bd-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 11px;cursor:pointer;box-shadow:var(--shadow);transition:border-color var(--t),transform var(--t)}
+.bd-card[draggable="true"]{cursor:grab}
+.bd-card:hover{border-color:var(--text3)}
+.bd-card.dragging{opacity:.3}
+.bd-card.problem{border-color:var(--red-line);background:var(--red-soft)}
+.bd-card.done{opacity:.62;background:#f8fcf9}
+.bd-card.cancelled{opacity:.45}
+.bd-r1{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.bd-r1 .oc-seq{width:22px;height:22px;font-size:12px}
+.bd-time{font-family:'Roboto Condensed',sans-serif;font-weight:800;font-size:14.5px;font-variant-numeric:tabular-nums}
+.bd-r1 .st{margin-left:auto;font-size:10.5px;padding:2px 7px}
+.bd-client{font-weight:800;font-size:15px;line-height:1.2}
+.bd-addr{font-size:13px;color:var(--text2);margin-top:2px;line-height:1.3}
+.bd-items{font-size:12.5px;color:var(--text3);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd-r3{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;align-items:center}
+.bd-r3 .oc-tag{font-size:11px;padding:2px 6px}
+.bd-r3 .urg{font-size:9.5px;padding:2px 6px}
+.bd-sum{margin-left:auto;font-family:'Roboto Condensed',sans-serif;font-weight:800;color:var(--green);font-size:14.5px;white-space:nowrap}
+.bd-prob{font-size:12px;font-weight:700;color:var(--red);margin-top:6px}
+.bd-ph{height:4px;background:var(--ink);border-radius:2px;flex-shrink:0}
+.bd-add{margin:0 10px 10px;padding:9px;border:1.5px dashed var(--line2);border-radius:10px;background:none;font-weight:700;font-size:13px;color:var(--text2);cursor:pointer}
+.bd-add:hover{border-color:var(--ink);color:var(--ink)}
+.bd-empty{font-size:12.5px;color:var(--text3);text-align:center;padding:18px 8px;line-height:1.5}
+.kbd{display:inline-block;border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11px;font-weight:700;color:var(--text2);background:#fff;margin:0 1px}
+.bd-hint{font-size:12px;color:var(--text3);margin-top:8px}
+
+@media (min-width:1100px){
+  .desk-only{display:inline-flex!important}
+  body{padding-bottom:0;padding-left:240px}
+  .header{padding-left:24px;padding-right:24px}
+  .hdr-top{justify-content:flex-start;padding-left:58px}
+  .hdr-nav{grid-template-columns:auto auto 1fr;gap:16px;justify-items:start}
+  .bnav{top:0;bottom:0;left:0;right:auto;width:240px;display:flex;flex-direction:column;gap:4px;padding:18px 14px 20px;border-top:none;border-right:1px solid var(--line);box-shadow:none;background:#fff;z-index:310}
+  .bnav::before{content:"Меню";font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:4px 14px 6px;order:0}
+  .bn{flex-direction:row;justify-content:flex-start;gap:12px;padding:11px 14px;order:1}
+  .bn span{font-size:14.5px;font-weight:700}
+  .bn svg{width:21px;height:21px}
+  .bn:hover{background:var(--surface2);color:var(--ink)}
+  .bn.on{background:var(--surface2)}
+  .bn.on::after{display:block;top:9px;bottom:9px;left:0;width:3px;height:auto;border-radius:2px}
+  .bn-add{order:-1!important;background:var(--ink)!important;border-radius:12px;margin:0 0 12px;padding:13px 14px}
+  .bn-add:hover{background:#2b2d31!important}
+  .bn-add .plus{width:22px;height:22px;background:none;box-shadow:none;margin:0;border-radius:0}
+  .bn-add .plus svg{width:20px;height:20px}
+  .bn-add span{color:#fff;font-size:15px}
+  .bn .nb{position:static;margin-left:auto}
+  .panel{max-width:1000px;padding:20px 28px 40px}
+  body.board-on #tab-schedule{max-width:none}
+  body.board-on .toolbar,body.board-on .hdr-nav,body.board-on #demoBar{display:none}
+  body.board-on .stats-bar{grid-template-columns:repeat(4,minmax(0,220px))}
+  .modal-ov.on{align-items:center;padding:24px}
+  .modal-box{border-radius:20px;max-width:760px;max-height:92vh;animation:none}
+  .modal-handle{display:none}
+  #actModal .modal-box{max-width:560px}
+  .toast-wrap{left:auto;right:24px;bottom:24px;transform:none}
+  #cashList{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:12px}
+  #cashList .cash-card{margin-bottom:0}
+  body:not(.role-warehouse) .orders-wrap:not(.collapsed){display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  body:not(.role-warehouse) .orders-wrap .order-card:nth-of-type(odd){border-right:1px solid var(--line)}
+  .orders-wrap>.day-route,.orders-wrap>.day-actions,.orders-wrap>.empty-day{grid-column:1/-1}
+  .drv-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .auth-card{max-width:420px}
+}
+
 </style>
 </head>
 <body>
@@ -743,7 +838,7 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
   <div class="stats-bar" id="statsBar"></div>
   <div class="toolbar">
     <div class="chips drv-hide" id="masterChips"></div>
-    <div class="tool-row edit-only"><button class="chip" onclick="openMap()">📍 Де водії</button><button class="chip" onclick="openReminders(tomorrowKey())">🔔 Нагадати клієнтам на завтра</button></div>
+    <div class="tool-row edit-only"><button class="chip on desk-only" onclick="setViewMode('board')">▦ Дошка дня</button><button class="chip" onclick="openMap()">📍 Де водії</button><button class="chip" onclick="openReminders(tomorrowKey())">🔔 Нагадати клієнтам на завтра</button></div>
     <div id="locPill" class="drv-only"></div>
     <div class="switch-row drv-hide">
       <span>Лише дні з доставками</span>
@@ -1155,6 +1250,9 @@ let daysOff = {};
 let cashData = {};           // app/cash/{date}/{driverKey} = {sum, by, at}
 let cashDate = null;
 let searchStatus = "";
+let boardDate = null, viewMode = "board", dragId = null;
+const deskMQ = window.matchMedia("(min-width:1100px)");
+try { viewMode = localStorage.getItem("ld_viewMode") || "board"; } catch(e) {}
 const MONTHS_UA = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
 const MONTHS_GEN = ["Січня","Лютого","Березня","Квітня","Травня","Червня","Липня","Серпня","Вересня","Жовтня","Листопада","Грудня"];
 const DAYS_UA = ["Нд","Пн","Вт","Ср","Чт","Пт","Сб"];
@@ -1186,9 +1284,20 @@ window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".logo-img").forEach(i => i.src = logo);
   document.getElementById("modal").addEventListener("click", e => { if(e.target.id === "modal") closeModal(); });
   document.addEventListener("keydown", e => { if(e.key === "Escape") { closeModal(); closeProfile(); closeAct(); } });
+  // гарячі клавіші логіста на ноутбуці
+  document.addEventListener("keydown", e => {
+    if(e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test((e.target && e.target.tagName) || "")) return;
+    if(document.querySelector(".modal-ov.on")) return;
+    if(!boardActive()) return;
+    if(e.key === "ArrowLeft") { boardShift(-1); e.preventDefault(); }
+    else if(e.key === "ArrowRight") { boardShift(1); e.preventDefault(); }
+    else if(e.key === "t" || e.key === "е" || e.key === "T") boardSet(fmtDate(new Date()));
+    else if((e.key === "n" || e.key === "т" || e.key === "N") && can("edit")) { e.preventDefault(); openModalForDate(boardDate); }
+  });
   try { onlyBusy = localStorage.getItem("ld_onlyBusy") === "1"; masterFilter = localStorage.getItem("ld_masterFilter") || ""; } catch(e){}
   document.getElementById("onlyBusy").checked = onlyBusy;
-  cashDate = fmtDate(new Date());
+  cashDate = fmtDate(new Date()); boardDate = cashDate;
+  try { deskMQ.addEventListener("change", () => renderAll()); } catch(e) { deskMQ.addListener(() => renderAll()); }
   let lastDay = fmtDate(new Date());
   setInterval(() => { const d = fmtDate(new Date()); if(d !== lastDay){ lastDay = d; renderAll(); } }, 60000);
   initFirebase();
@@ -1327,14 +1436,15 @@ function renderStats() {
   const todayKey = fmtDate(new Date());
   const thisMonth = todayKey.startsWith(`${currentYear}-${pad(currentMonth+1)}`);
   // поточний місяць → показуємо день «сьогодні», інший місяць → увесь місяць
-  const scope = thisMonth ? visibleOrders(orders.filter(o => o.date === todayKey)) : visibleOrders(getMonthOrders());
+  const bd = boardActive();
+  const scope = bd ? orders.filter(o => o.date === boardDate) : thisMonth ? visibleOrders(orders.filter(o => o.date === todayKey)) : visibleOrders(getMonthOrders());
   const act = scope.filter(isActive);
   const done = act.filter(isDone).length;
   const prob = act.filter(o => o.status === "problem").length;
   const road = act.filter(o => o.status === "enroute").length;
   const cashPlan = act.filter(isCash).reduce((s,o) => s + due(o), 0);
   const cashGot = act.filter(o => isCash(o) && isDone(o)).reduce((s,o) => s + (+o.collected||0), 0);
-  const lbl = thisMonth ? "сьогодні" : "за місяць";
+  const lbl = bd ? (boardDate === todayKey ? "сьогодні" : "за день") : thisMonth ? "сьогодні" : "за місяць";
   const money = can("totals") || myDriver() !== null;
   box.innerHTML = `
     <div class="stat"><div class="stat-val ink">${act.length}</div><div class="stat-lbl">Доставок ${lbl}</div></div>
@@ -1385,7 +1495,9 @@ function renderSchedule() {
   const monthOrders = visibleOrders(getMonthOrders());
   const drvMode = myDriver() !== null;
   let html = "";
+  document.body.classList.toggle("board-on", boardActive());
   if(isWarehouse()) return renderWarehouse(box, monthOrders, todayKey);
+  if(boardActive()) return renderBoard(box);
 
   if(drvMode && !myDriver()) {
     box.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><p>Адміністратор ще не прив'язав ваш акаунт до водія.<br>Попросіть його зробити це в розділі «Користувачі».</p></div>`;
@@ -1730,13 +1842,14 @@ function openModal(id) {
   document.getElementById("modal").classList.add("on");
   document.body.style.overflow = "hidden";
 }
-function openModalForDate(date) {
+function openModalForDate(date, driver) {
   if(!can("edit")) return;
   const off = dayOffInfo(date, parseDate(date).getDay());
   if(off.off && !confirm(`${fmtHuman(date)} — ${off.label.toLowerCase()}.\nВсе одно додати доставку на цей день?`)) return;
   openModal();
   document.getElementById("fDate").value = date;
-  if(masterFilter) document.getElementById("fMaster").value = masterFilter;
+  if(driver !== undefined) document.getElementById("fMaster").value = driver;
+  else if(masterFilter && !boardActive()) document.getElementById("fMaster").value = masterFilter;
   setTimeout(() => document.getElementById("fClient").focus(), 300);
 }
 function closeModal() {
@@ -1847,6 +1960,7 @@ function saveOrder() {
     toast("Доставку додано ✓","ok");
   }
   jumpToDate(entry.date);
+  if(boardActive()) boardDate = entry.date;
   saveData(); closeModal(); renderAll();
 }
 function duplicateOrder() {
@@ -3301,6 +3415,154 @@ function renderAuditBox(o) {
   }
   box.innerHTML = h;
   box.style.display = "block";
+}
+
+
+// ═══════════════════════════════════════
+// ДОШКА ДНЯ (ноутбук / комп'ютер)
+// ═══════════════════════════════════════
+function isDesk() { return deskMQ.matches; }
+function boardActive() { return isDesk() && !!me && can("view") && !isWarehouse() && myDriver() === null && viewMode === "board"; }
+function setViewMode(m) {
+  viewMode = m;
+  try { localStorage.setItem("ld_viewMode", m); } catch(e) {}
+  if(m === "month" && boardDate) { const d = parseDate(boardDate); currentYear = d.getFullYear(); currentMonth = d.getMonth(); pendingScrollToday = true; }
+  window.scrollTo({top:0});
+  renderAll();
+}
+function boardSet(key) { if(!key) return; boardDate = key; const d = parseDate(key); currentYear = d.getFullYear(); currentMonth = d.getMonth(); renderAll(); }
+function boardShift(n) { const d = parseDate(boardDate); d.setDate(d.getDate() + n); boardSet(fmtDate(d)); }
+function bdSort(a, b) { return ((+a.seq||99) - (+b.seq||99)) || (a.time||"").localeCompare(b.time||""); }
+
+function renderBoard(box) {
+  const key = boardDate, d = parseDate(key), todayKey = fmtDate(new Date());
+  const off = dayOffInfo(key, d.getDay());
+  const list = orders.filter(o => o.date === key);
+  const act = list.filter(isActive);
+  const rel = key === todayKey ? "Сьогодні" : key === tomorrowKey() ? "Завтра" : key === fmtDate(new Date(Date.now() - 86400000)) ? "Вчора" : DAYS_FULL[d.getDay()];
+  const edit = can("edit");
+  let h = `<div class="bd-bar">
+    <div class="bd-date">
+      <button class="nav-arrow" onclick="boardShift(-1)" aria-label="Попередній день">&#8249;</button>
+      <div class="bd-day"><span>${rel}${off.off ? " · " + esc(off.label) : ""}</span><b>${d.getDate()} ${MONTHS_GEN[d.getMonth()].toLowerCase()}${key === todayKey || key === tomorrowKey() ? ", " + DAYS_FULL[d.getDay()].toLowerCase() : ""}</b></div>
+      <button class="nav-arrow" onclick="boardShift(1)" aria-label="Наступний день">&#8250;</button>
+      <input type="date" class="inp bd-pick" id="bdPick" value="${key}" onchange="boardSet(this.value)" aria-label="Обрати дату">
+      ${key !== todayKey ? `<button class="today-btn" onclick="boardSet('${todayKey}')">Сьогодні</button>` : ""}
+    </div>
+    <div class="bd-tools">
+      <div class="seg-mini"><button class="on">▦ День</button><button onclick="setViewMode('month')">☰ Місяць</button></div>
+      ${act.length ? `<button class="settings-btn" onclick="copyDay('${key}')">📋 Маршрути</button>` : ""}
+      ${edit && act.length && key >= todayKey ? `<button class="settings-btn" onclick="openReminders('${key}')">🔔 Нагадати</button>` : ""}
+      ${edit ? `<button class="settings-btn" onclick="openMap()">📍 Де водії</button>` : ""}
+      ${edit ? `<button class="settings-btn dark" onclick="openModalForDate('${key}')">+ Доставка</button>` : ""}
+    </div>
+  </div>
+  <div class="board" id="board">`;
+  const names = [...new Set([...driverNames(), ...list.map(o => o.driver).filter(Boolean)])];
+  [""].concat(names).forEach(n => h += bdColumnHTML(n, list.filter(o => (o.driver || "") === n), key));
+  h += `</div>${edit ? `<div class="bd-hint">Перетягніть доставку мишкою на іншого водія або вище-нижче, щоб змінити порядок точок. Клавіші: <span class="kbd">←</span><span class="kbd">→</span> день, <span class="kbd">N</span> нова доставка, <span class="kbd">T</span> сьогодні.</div>` : ""}`;
+  box.innerHTML = h;
+}
+function bdColumnHTML(name, l, key) {
+  const none = !name, inf = driverInfo(name);
+  const sorted = none ? l.slice().sort((a,b) => (a.time||"").localeCompare(b.time||"")) : l.slice().sort(bdSort);
+  const act = l.filter(isActive), done = act.filter(isDone).length;
+  const cash = act.filter(isCash).reduce((s,o) => s + due(o), 0);
+  const route = name ? dayRouteUrl(act.filter(o => !isDone(o) && o.status !== "problem").sort(bdSort)) : "";
+  const money = can("totals");
+  return `<section class="bd-col ${none ? "none" : ""}" data-drv="${esc(name)}" ondragover="bdOver(event,this)" ondragleave="bdLeave(event,this)" ondrop="bdDrop(event,this)">
+    <div class="bd-col-hd"><div class="avatar">${none ? "?" : esc(initials(name))}</div>
+      <div class="di"><b>${none ? "Без водія" : esc(name)}</b><span>${none ? (act.length ? "Перетягніть на водія" : "Усі доставки розподілено") : esc((inf && inf.car) || (inf && inf.phone ? phoneNice(inf.phone) : "—"))}</span></div>
+      ${route ? `<a class="icon-a" href="${route}" target="_blank" rel="noopener" title="Маршрут водія в Google Maps" aria-label="Маршрут водія">${IC.route}</a>` : ""}
+    </div>
+    ${!none && act.length ? `<div class="bd-col-meta"><span>${act.length} ${plural(act.length,"точка","точки","точок")} · <span class="g">${done} ✓</span></span>${money && cash ? `<span>${fmt(cash)} ₴</span>` : ""}</div><div class="bd-prog"><i style="width:${Math.round(done/act.length*100)}%"></i></div>` : ""}
+    <div class="bd-list">${sorted.map(bdCardHTML).join("") || `<div class="bd-empty">${none ? "Нових доставок без водія немає" : "Немає доставок.<br>Перетягніть сюди картку"}</div>`}</div>
+    ${can("edit") ? `<button class="bd-add" onclick="openModalForDate('${key}', this.closest('.bd-col').dataset.drv)">+ Додати${none ? "" : " водію"}</button>` : ""}
+  </section>`;
+}
+function bdCardHTML(o) {
+  const st = o.status || "new", id = esc(o.id);
+  const drag = can("edit") && isActive(o) && !isDone(o);
+  const tags = [];
+  if(o.urgent) tags.push(`<span class="urg">Терміново</span>`);
+  if(o.lifting) tags.push(`<span class="oc-tag dark">Підйом${o.floor ? " " + esc(o.floor) + " пов." : ""}</span>`);
+  else if(o.floor) tags.push(`<span class="oc-tag">${esc(o.floor)} пов.</span>`);
+  if(o.size === "l" || o.size === "xl") tags.push(`<span class="oc-tag">${SIZE[o.size]}</span>`);
+  if(o.picked && ["new","assigned"].includes(st)) tags.push(`<span class="oc-tag">📦 зібрано</span>`);
+  if(o.notifiedAt) tags.push(`<span class="oc-tag" title="Клієнта повідомлено">💬 ${esc(o.eta || timeHM(o.notifiedAt))}</span>`);
+  if(+o.photos || o.signed) tags.push(`<span class="oc-tag">${+o.photos ? "📷" : ""}${o.signed ? "✍" : ""}</span>`);
+  if(o.pay === "paid" || o.pay === "invoice") tags.push(`<span class="oc-tag paid">${PAY[o.pay]}</span>`);
+  const sum = can("totals") && due(o) > 0 ? `<span class="bd-sum">${fmt(due(o))} ₴</span>` : "";
+  return `<div class="bd-card ${st === "problem" ? "problem" : ""} ${isDone(o) ? "done" : ""} ${st === "cancelled" ? "cancelled" : ""}" data-id="${id}" draggable="${drag}"
+      ${drag ? `ondragstart="bdStart(event,'${id}')" ondragend="bdEnd(event)"` : ""} onclick="editOrder('${id}')">
+    <div class="bd-r1">${o.driver && +o.seq ? `<span class="oc-seq">${+o.seq}</span>` : ""}<span class="bd-time">${esc(timeWin(o))}</span><span class="st ${st}">${STATUS[st] || st}</span></div>
+    <div class="bd-client">${esc(o.client || "—")}</div>
+    ${o.addr ? `<div class="bd-addr">${esc(o.addr)}</div>` : ""}
+    ${o.items ? `<div class="bd-items" title="${esc(o.items)}">${esc(o.items.split("\n")[0])}${o.items.includes("\n") ? " …" : ""}</div>` : ""}
+    ${st === "problem" ? `<div class="bd-prob">⚠ ${esc(o.problem || "Проблема")}</div>` : ""}
+    ${o.retItems ? `<div class="bd-prob">↩ ${esc(o.retItems)}</div>` : ""}
+    ${tags.length || sum ? `<div class="bd-r3">${tags.join("")}${sum}</div>` : ""}
+  </div>`;
+}
+let bdPh = null;
+function bdStart(e, id) {
+  dragId = id;
+  try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", id); } catch(_) {}
+  const el = e.currentTarget; setTimeout(() => el.classList.add("dragging"), 0);
+}
+function bdEnd(e) {
+  e.currentTarget.classList.remove("dragging");
+  document.querySelectorAll(".bd-col.drop").forEach(c => c.classList.remove("drop"));
+  if(bdPh) { bdPh.remove(); bdPh = null; }
+  dragId = null;
+}
+function bdIndex(col, y) {
+  const cards = [...col.querySelectorAll(".bd-card:not(.dragging)")];
+  const i = cards.findIndex(c => { const r = c.getBoundingClientRect(); return y < r.top + r.height / 2; });
+  return {cards, i: i < 0 ? cards.length : i};
+}
+function bdOver(e, col) {
+  if(!dragId) return;
+  e.preventDefault();
+  try { e.dataTransfer.dropEffect = "move"; } catch(_) {}
+  document.querySelectorAll(".bd-col.drop").forEach(c => c !== col && c.classList.remove("drop"));
+  col.classList.add("drop");
+  if(!col.dataset.drv) { if(bdPh) { bdPh.remove(); bdPh = null; } return; }   // «Без водія» — без порядку
+  const {cards, i} = bdIndex(col, e.clientY);
+  if(!bdPh) { bdPh = document.createElement("div"); bdPh.className = "bd-ph"; }
+  const list = col.querySelector(".bd-list"), empty = list.querySelector(".bd-empty");
+  if(empty) empty.style.display = "none";
+  if(cards[i]) list.insertBefore(bdPh, cards[i]); else list.appendChild(bdPh);
+}
+function bdLeave(e, col) {
+  if(col.contains(e.relatedTarget)) return;
+  col.classList.remove("drop");
+  if(bdPh && col.contains(bdPh)) { bdPh.remove(); bdPh = null; }
+  const empty = col.querySelector(".bd-empty"); if(empty) empty.style.display = "";
+}
+function bdDrop(e, col) {
+  e.preventDefault();
+  const id = dragId || (e.dataTransfer && e.dataTransfer.getData("text/plain"));
+  const {i} = bdIndex(col, e.clientY);
+  if(bdPh) { bdPh.remove(); bdPh = null; }
+  col.classList.remove("drop");
+  if(id) moveOrder(id, col.dataset.drv || "", i);
+}
+function moveOrder(id, drv, idx) {
+  const o = orders.find(x => x.id === id);
+  if(!o || !can("edit")) return;
+  const prevDrv = o.driver || "";
+  const others = orders.filter(x => x.date === o.date && (x.driver || "") === drv && x.id !== id && isActive(x)).sort(bdSort);
+  o.driver = drv;
+  if(drv && (!o.status || o.status === "new")) o.status = "assigned";
+  if(!drv && o.status === "assigned") o.status = "new";
+  if(drv) { others.splice(Math.min(idx, others.length), 0, o); others.forEach((x, k) => { x.seq = k + 1; }); }
+  else o.seq = 0;
+  if(prevDrv && prevDrv !== drv) orders.filter(x => x.date === o.date && x.driver === prevDrv && isActive(x)).sort(bdSort).forEach((x, k) => { x.seq = k + 1; });
+  saveData(prevDrv === drv ? "Зміна порядку маршруту" : "Розподіл доставок");
+  renderAll();
+  playSound("info");
+  toast(drv ? (prevDrv === drv ? `${drv}: точка №${o.seq}` : `${o.client || "Доставка"} → ${drv}, точка №${o.seq}`) : `${o.client || "Доставка"}: знято з водія`, "info", 2200);
 }
 
 // ═══════════════════════════════════════
