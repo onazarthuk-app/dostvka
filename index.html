@@ -697,7 +697,7 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
 .kbd{display:inline-block;border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11px;font-weight:700;color:var(--text2);background:#fff;margin:0 1px}
 .bd-hint{font-size:12px;color:var(--text3);margin-top:8px}
 
-@media (min-width:1100px){
+@media (min-width:1000px){
   .desk-only{display:inline-flex!important}
   body{padding-bottom:0;padding-left:240px}
   .header{padding-left:24px;padding-right:24px}
@@ -735,6 +735,20 @@ body.role-manager .price-only,body.role-viewer .price-only{display:none!importan
   .auth-card{max-width:420px}
 }
 
+
+/* вужчі ноутбуки (1000–1279 px): компактне меню з іконками */
+@media (min-width:1000px) and (max-width:1279px){
+  body{padding-left:84px}
+  .bnav{width:84px;padding:14px 10px;align-items:stretch}
+  .bnav::before{display:none}
+  .bn{flex-direction:column;justify-content:center;gap:3px;padding:10px 4px}
+  .bn span{font-size:10.5px}
+  .bn-add{padding:12px 4px}
+  .bn-add span{font-size:11px}
+  .bn .nb{position:absolute;top:4px;right:8px;margin:0}
+  .panel{padding:18px 20px 36px}
+  .header{padding-left:16px;padding-right:16px}
+}
 </style>
 </head>
 <body>
@@ -1251,7 +1265,7 @@ let cashData = {};           // app/cash/{date}/{driverKey} = {sum, by, at}
 let cashDate = null;
 let searchStatus = "";
 let boardDate = null, viewMode = "board", dragId = null;
-const deskMQ = window.matchMedia("(min-width:1100px)");
+const deskMQ = window.matchMedia("(min-width:1000px)");
 try { viewMode = localStorage.getItem("ld_viewMode") || "board"; } catch(e) {}
 const MONTHS_UA = ["Січень","Лютий","Березень","Квітень","Травень","Червень","Липень","Серпень","Вересень","Жовтень","Листопад","Грудень"];
 const MONTHS_GEN = ["Січня","Лютого","Березня","Квітня","Травня","Червня","Липня","Серпня","Вересня","Жовтня","Листопада","Грудня"];
