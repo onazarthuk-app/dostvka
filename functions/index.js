@@ -1,4 +1,4 @@
-// Push-сповіщення для «Львівський дядько · Доставка».
+// Push-сповіщення для «The Logistics · Доставка».
 // Працює на тарифі Blaze (Cloud Functions). Розгортання: firebase deploy --only functions
 const { onValueWritten } = require("firebase-functions/v2/database");
 const { initializeApp } = require("firebase-admin/app");
@@ -32,7 +32,14 @@ exports.orderPush = onValueWritten(
 
     // 1) Водію: на нього призначили доставку
     const closed = ["delivered", "partial", "cancelled"].includes(after.status);
-    if (after.driver && (!before || before.driver !== after.driver) && !closed) {
+    const isReq = (o) => !!o && o.status === "request";
+    // 0) Логістам: менеджер створив заявку
+    if (isReq(after) && !isReq(before)) {
+      tokensOf((u, uid) => ["admin", "user"].includes(u.role) && uid !== after.updatedBy).forEach((t) =>
+        msgs.push({ t, title: "Нова заявка на доставку", body: `${after.client || ""} · ${after.addr || ""}${after.createdByName ? " · від " + after.createdByName : ""}` }));
+    }
+    // 1) Водію: доставку погоджено і призначено на нього
+    if (after.driver && !isReq(after) && (!before || before.driver !== after.driver || isReq(before)) && !closed) {
       tokensOf((u) => u.role === "driver" && u.driver === after.driver).forEach((t) =>
         msgs.push({ t, title: "Нова доставка", body: `${after.date} ${when} · ${after.addr || ""} · ${after.client || ""}` }));
     }
@@ -44,7 +51,7 @@ exports.orderPush = onValueWritten(
         msgs.push({ t, title: `${after.driver || "Водій"}: ${STATUS[after.status]}`, body: `${after.client || ""} · ${after.addr || ""}${extra}` }));
     }
     // 3) Складу: нове замовлення, яке треба зібрати, і повернення, яке везуть назад
-    if (!before && !closed) {
+    if (!closed && !isReq(after) && (!before || isReq(before))) {
       tokensOf((u) => u.role === "warehouse").forEach((t) =>
         msgs.push({ t, title: "Зібрати замовлення", body: `${after.date} ${when} · ${(after.items || "").split("\n")[0]}` }));
     }

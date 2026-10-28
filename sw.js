@@ -1,7 +1,7 @@
-// Львівський дядько · Доставка — service worker
+// The Logistics · Доставка — service worker
 // 1) програма відкривається без інтернету  2) push-сповіщення через Firebase Cloud Messaging
-const CACHE = "ld-v5";
-const CORE = ["./", "index.html", "manifest.webmanifest", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png"];
+const CACHE = "tl-v1";
+const CORE = ["./", "index.html", "manifest.webmanifest", "favicon.ico", "favicon-32.png", "favicon-16.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-192.png", "icon-maskable-512.png"];
 
 try {
   importScripts(
