@@ -1091,7 +1091,7 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
     <div class="info-box">
       <b>Адміністратор</b> — усе: видалення, очищення, імпорт, водії, тарифи, журнал.<br>
       <b>Логіст</b> — доставки, розподіл, каса, телефони клієнтів. Призначає ролі всім, крім адміністратора.<br>
-      <b>Менеджер</b> — як Логіст, але без сум і каси.<br>
+      <b>Магазин</b> — менеджер магазину: формує заявки на доставку і бачить, коли логіст їх погодив. Без сум і каси.<br>
       <b>Водій</b> — лише свої доставки, статуси, фото, гроші. Номерів клієнтів не бачить. Прив'яжіть акаунт до водія зі списку.<br>
       <b>Склад</b> — що зібрати і кому видати, прийом повернень. Не бачить номерів клієнтів і сум.<br>
       <b>Лише перегляд</b> — графік без змін і без сум.<br>
@@ -1169,7 +1169,7 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
         <select class="inp" id="profRoleSel" onchange="setUserRole(me.uid, this.value)">
           <option value="admin">Адміністратор</option>
           <option value="user">Логіст</option>
-          <option value="manager">Менеджер</option>
+          <option value="manager">Магазин</option>
           <option value="driver">Водій</option>
           <option value="warehouse">Склад</option>
           <option value="viewer">Лише перегляд</option>
@@ -2472,10 +2472,10 @@ function seedData() {
   orders.push(
     {id:"seed_r1", num:"2410", date:d(1), time:"", timeTo:"", client:"Остап Семенюк", phone:"067 330 18 22", addr:"вул. Пасічна 94, кв. 12", floor:"4", lift:"no", lifting:true, urgent:false,
      items:"Двері міжкімнатні «Ліон» 70 см — 3 шт\nДоборні планки", size:"l", pay:"cash", amount:16200, driver:"", seq:0, status:"request", notes:"Клієнт удома після 14:00",
-     problem:"", collected:0, deliveredAt:0, createdAt:now-40*60e3, createdByName:"Олена Менеджер"},
+     problem:"", collected:0, deliveredAt:0, createdAt:now-40*60e3, createdByName:"Магазин · Олена"},
     {id:"seed_r2", num:"2411", date:d(2), time:"", timeTo:"", client:"ФОП Гаврилюк", phone:"098 774 02 15", addr:"вул. Зелена 147", floor:"", lift:"", lifting:false, urgent:true,
      items:"Плитка Golden Tile 60×60 — 18 м²\nЗатирка — 4 шт", size:"l", pay:"invoice", amount:0, driver:"", seq:0, status:"request", notes:"",
-     problem:"", collected:0, deliveredAt:0, createdAt:now-12*60e3, createdByName:"Олена Менеджер"});
+     problem:"", collected:0, deliveredAt:0, createdAt:now-12*60e3, createdByName:"Магазин · Олена"});
   Object.assign(S(9), {status:"partial", retItems:"Двері «Марк» 70 см — 1 шт", retReason:"Брак / пошкодження", retState:"back", collected:12400});
   driverLocs = {
     a: {name:"Андрій Коваль", lat:49.8121, lng:24.0563, ts: now-3*60e3},
@@ -2588,7 +2588,7 @@ const firebaseConfig = {
   appId: "1:751957678408:web:5d2b2faf507d16691a7b7d",
   measurementId: "G-HY2KC3HQJT"
 };
-const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Менеджер", driver:"Водій", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
+const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Магазин", driver:"Водій", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
 const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
   ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"],["agreedAt","Погоджено з клієнтом"],["agreedBy","Погодив"],["fee","Доставка"],["units","Одиниць підйому"],["liftCost","Підйом"],["svcPaid","Послуги оплачені"],
   ["retItems","Не доставлено"],["retReason","Причина повернення"],["retState","Стан повернення"],["photos","Фото"],["signed","Підпис"],["notifiedAt","Клієнта повідомлено"],["eta","Орієнтовний час"],["remindedAt","Нагадування"],["picked","Зібрано"],["pickedBy","Зібрав"],["pickedAt","Час збирання"]];
@@ -3464,7 +3464,7 @@ function renderUsers() {
         ${can("admin") ? `<button class="link-btn" onclick="showUserLog('${uid}')">Що робив(ла) →</button>` : ""}
       </div>
       <div class="user-actions">
-        ${u.role === "pending" ? `<button class="btn-approve dark" onclick="setUserRole('${uid}','user')">✓ Логіст</button><button class="btn-approve" onclick="setUserRole('${uid}','driver')">✓ Водій</button><button class="btn-approve dark" onclick="setUserRole('${uid}','warehouse')">✓ Склад</button>` : ""}
+        ${u.role === "pending" ? `<button class="btn-approve dark" onclick="setUserRole('${uid}','manager')">✓ Магазин</button><button class="btn-approve dark" onclick="setUserRole('${uid}','user')">✓ Логіст</button><button class="btn-approve" onclick="setUserRole('${uid}','driver')">✓ Водій</button><button class="btn-approve dark" onclick="setUserRole('${uid}','warehouse')">✓ Склад</button>` : ""}
         ${lockAdmin ? `<span class="muted">Змінює лише адміністратор</span>` : `<select class="inp" onchange="setUserRole('${uid}', this.value)">${opts}</select>`}
         ${drvSel}
       </div>
@@ -3597,7 +3597,7 @@ function renderBoard(box) {
 function bdReqColumnHTML(l, key) {
   return `<section class="bd-col reqs">
     <div class="bd-col-hd"><div class="avatar">!</div>
-      <div class="di"><b>Заявки без часу</b><span>${can("plan") ? "Погодьте з клієнтом, потім на водія" : "Чекають погодження логістом"}</span></div></div>
+      <div class="di"><b>Заявки без часу</b><span>${can("plan") ? "Погодьте з клієнтом час доставки" : "Чекають погодження логістом"}</span></div></div>
     <div class="bd-list">${l.map(bdCardHTML).join("") || `<div class="bd-empty">Нових заявок немає</div>`}</div>
     ${can("edit") ? `<button class="bd-add" onclick="openModalForDate('${key}')">+ Нова заявка</button>` : ""}
   </section>`;
