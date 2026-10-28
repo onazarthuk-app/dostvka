@@ -790,6 +790,40 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
   .hdr-top{padding-left:62px}
 }
 
+.oc-wh{display:flex;gap:10px;align-items:center;margin:2px 0 8px;padding:8px 10px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:13.5px;line-height:1.3}
+.oc-wh .ic{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.oc-wh .ic svg{width:16px;height:16px}
+.oc-wh small{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.wh-from{display:inline-block;font-size:12px;font-weight:800;background:var(--ink);color:#fff;border-radius:7px;padding:2px 8px;margin-bottom:6px}
+.drv-item .avatar.wh-av{background:var(--surface3);color:var(--ink)}
+/* ПК: бічне меню зі швидким доступом */
+.bq,.bq-sep,.bq-me{display:none}
+@media (min-width:1000px){
+  .bnav{overflow-y:auto;scrollbar-width:none}
+  .bnav::-webkit-scrollbar{display:none}
+  .bnav::before{display:none!important}
+  #bn4{display:none!important}
+  .bn-add{justify-content:center!important;margin-bottom:14px!important}
+  .bn-add .plus{width:auto}
+  .bq{display:flex;order:2;position:relative}
+  .bq-sep{display:block;order:2;height:1px;background:var(--brand-line);margin:8px 10px;flex-shrink:0}
+  .bq.on{background:var(--brand3);color:#fff}
+  .bq.on::after{display:block;top:9px;bottom:9px;left:0;width:3px;height:auto;border-radius:2px;background:#fff}
+  .bq-me{display:flex;order:3;margin-top:auto;align-items:center;gap:10px;padding:12px 10px 4px;background:none;border:none;border-top:1px solid var(--brand-line);color:#fff;cursor:pointer;text-align:left;width:100%;font:inherit}
+  .bq-me .avatar{width:36px;height:36px;font-size:12.5px;background:#fff;color:#000;flex-shrink:0}
+  .bq-me-t{min-width:0}
+  .bq-me-t b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bq-me-t small{display:block;font-size:11.5px;color:#8d8f95}
+  .bq-me:hover .bq-me-t b{text-decoration:underline}
+}
+@media (min-width:1000px) and (max-width:1279px){
+  .bn-add .plus{width:22px}
+  .bq span{font-size:9.5px;line-height:1.15;text-align:center}
+  .bq-sep{margin:6px 6px}
+  .bq-me{justify-content:center;padding:12px 0 4px}
+  .bq-me-t{display:none}
+}
+.bd-col.reqs.flash,.req-block.flash,.order-card.req.flash{animation:hintFlash .6s ease 2}
 /* ПК: верхні панелі по центру */
 @media (min-width:1000px){
   body.board-on .stats-bar{justify-content:center}
@@ -911,6 +945,47 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
     <span>Ще</span>
   </button>
+  <div class="bq-sep"></div>
+  <button class="bn bq edit-only" data-q="today" onclick="quickToday()" title="Сьогодні">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="16" r="2"/></svg>
+    <span>Сьогодні</span>
+  </button>
+  <button class="bn bq plan-only" data-q="reqs" onclick="quickReqs()" title="Заявки">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M12 11v3M12 17h.01"/></svg>
+    <span>Заявки</span><i class="nb" id="qReqBadge"></i>
+  </button>
+  <button class="bn bq edit-only" data-q="map" onclick="openMap()" title="Де водії">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+    <span>Де водії</span>
+  </button>
+  <button class="bn bq edit-only" data-q="routes" onclick="copyDay(fmtDate(new Date()))" title="Маршрути дня">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>
+    <span>Маршрути дня</span>
+  </button>
+  <button class="bn bq edit-only" data-q="remind" onclick="openReminders(tomorrowKey())" title="Нагадати на завтра">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <span>Нагадати на завтра</span>
+  </button>
+  <button class="bn bq roles-only" data-q="excel" onclick="exportExcel()" title="Excel за місяць">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 13l6 6M15 13l-6 6"/></svg>
+    <span>Excel за місяць</span>
+  </button>
+  <div class="bq-sep"></div>
+  <button class="bn bq roles-only" data-q="users" onclick="quickSub('users')" title="Користувачі">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+    <span>Користувачі</span><i class="nb" id="qPendBadge"></i>
+  </button>
+  <button class="bn bq adm-only" data-q="log" onclick="quickSub('log')" title="Журнал подій">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+    <span>Журнал подій</span>
+  </button>
+  <button class="bn bq " data-q="set" onclick="quickSub('set')" title="Налаштування">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    <span>Налаштування</span>
+  </button>
+  <button class="bq-me" onclick="openProfile()" title="Профіль">
+    <span class="avatar" id="qMeAv">?</span><span class="bq-me-t"><b id="qMeName">—</b><small id="qMeRole">—</small></span>
+  </button>
 </nav>
 
 <!-- ══ ГРАФІК ══ -->
@@ -1020,9 +1095,14 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
     <div class="settings-section adm-only">
       <div class="sec-hd">Склад і карти</div>
       <div class="settings-row" style="display:block">
-        <div class="sr-lbl">Адреса складу</div>
-        <div class="sr-sub" style="margin-bottom:8px">Звідси водій стартує, коли будує маршрут дня</div>
-        <input class="inp" id="warehouse" placeholder="вул. Городоцька 359" onchange="saveWarehouse(this.value)">
+        <div class="sr-lbl">Склади</div>
+        <div class="sr-sub" style="margin-bottom:8px">Логіст вибирає в доставці, з якого складу їде товар. Водій бачить, звідки забрати, а маршрут дня стартує зі складу.</div>
+        <div class="drv-list" id="whList"></div>
+        <div class="add-grid">
+          <input class="inp" id="newWhName" placeholder="Назва (напр. Склад Сихів)">
+          <input class="inp" id="newWhAddr" placeholder="Адреса складу" onkeydown="if(event.key==='Enter')addWh()">
+          <button class="settings-btn dark full" onclick="addWh()">Додати склад</button>
+        </div>
       </div>
       <div class="settings-row" style="display:block">
         <div class="sr-lbl">Телефон логіста</div>
@@ -1266,6 +1346,7 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
 
       <div class="form-sec plan-only">Виконання</div>
       <div class="fg-row plan-only">
+        <div class="fg plan-only" id="fWhWrap"><label for="fWh">Склад відвантаження</label><select id="fWh" onchange="whHint()"></select><div class="muted" id="fWhHint"></div></div>
         <div class="fg"><label for="fMaster">Водій і авто</label><select id="fMaster" onchange="carHint()"></select><div class="muted" id="fCarHint"></div></div>
         <div class="fg"><label for="fSeq">Порядок у маршруті</label><input type="number" id="fSeq" min="0" placeholder="автоматично" inputmode="numeric"></div>
       </div>
@@ -1324,6 +1405,10 @@ let currentMonth = new Date().getMonth();
 let masters = [];            // водії: [{name, phone, car}]
 let mapRegion = "Львів";
 let warehouse = "";
+let warehouses = [];   // [{id, name, addr}] — кілька складів
+function whList() { return warehouses.length ? warehouses : (warehouse ? [{id:"main", name:"Основний склад", addr:warehouse}] : []); }
+function whOf(o) { const l = whList(); return (o && l.find(w => w.id === o.wh)) || l[0] || null; }
+function whMulti() { return whList().length > 1; }
 let tariff = {}, tpl = {}, opts = {};
 let masterFilter = "";
 let onlyBusy = false;
@@ -1355,6 +1440,7 @@ const IC = {
   copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
   cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
   truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
 };
 
@@ -1421,8 +1507,11 @@ function dayRouteUrl(list) {
   if(!pts.length) return "";
   const dest = pts[pts.length-1], way = pts.slice(0,-1).slice(0,9);
   let u = "https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=" + encodeURIComponent(dest);
-  if(warehouse) u += "&origin=" + encodeURIComponent(mapQuery(warehouse));
-  if(way.length) u += "&waypoints=" + encodeURIComponent(way.join("|"));
+  // старт зі складу першої точки; інші склади, з яких теж треба забрати товар, — першими проміжними точками
+  const whs = [...new Set(list.filter(o => o.addr).map(o => whOf(o)).filter(Boolean).map(w => mapQuery(w.addr)))];
+  if(whs.length) u += "&origin=" + encodeURIComponent(whs[0]);
+  const all = whs.slice(1).concat(way).slice(0, 9);
+  if(all.length) u += "&waypoints=" + encodeURIComponent(all.join("|"));
   return u;
 }
 function isDone(o)   { return o.status === "delivered" || o.status === "partial"; }
@@ -1467,7 +1556,25 @@ function isReq(o) { return (o.status || "") === "request"; }
 // ═══════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════
+function quickMark(qid) { document.querySelectorAll(".bq").forEach(b => b.classList.toggle("on", b.dataset.q === qid)); }
+function quickSub(name) { goTab("settings", 4); goSub(name); quickMark(name); }
+function quickToday() { goTab("schedule", 0); if(typeof boardSet === "function" && boardActive()) boardSet(fmtDate(new Date())); else goToday(); quickMark("today"); }
+function quickReqs() {
+  goTab("schedule", 0); quickMark("reqs");
+  if(!orders.some(o => isReq(o) && isActive(o))) { toast("Нових заявок немає", "info"); return; }
+  setTimeout(() => { const el = document.querySelector(".bd-col.reqs, .req-block, .order-card.req"); if(el) { el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200); } else toast("Нових заявок немає", "info"); }, 120);
+}
+function renderQuick() {
+  if(!me) return;
+  const av = document.getElementById("qMeAv"); if(!av) return;
+  av.textContent = initials(myName());
+  document.getElementById("qMeName").textContent = myName();
+  document.getElementById("qMeRole").textContent = ROLES[me.role] || "";
+  const r = can("plan") ? orders.filter(o => isReq(o) && isActive(o)).length : 0, rb = document.getElementById("qReqBadge");
+  rb.style.display = r ? "flex" : "none"; rb.textContent = r;
+}
 function goTab(name, idx) {
+  quickMark(name === "settings" ? (document.querySelector(".sub.on") || {id:"sub-set"}).id.slice(4) : "");
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("on"));
   document.querySelectorAll(".bn").forEach(b => b.classList.remove("on"));
   document.getElementById("tab-"+name).classList.add("on");
@@ -1547,6 +1654,7 @@ function renderBadges() {
       + (can("plan") ? orders.filter(o => isReq(o) && isActive(o)).length : 0);
   const b = document.getElementById("probBadge");
   b.style.display = n ? "flex" : "none"; b.textContent = n;
+  renderQuick();
 }
 
 function renderChips() {
@@ -1697,6 +1805,7 @@ function whCardHTML(o) {
   const id = esc(o.id), st = o.status || "new", waiting = ["new","assigned"].includes(st);
   return `<div class="wh-card ${o.picked ? "picked" : ""} ${waiting ? "" : "given"}" onclick="editOrder('${id}')">
     <div class="wh-top"><span class="oc-time">${esc(timeWin(o))}</span>${o.num ? `<span class="oc-num">№ ${esc(o.num)}</span>` : ""}${o.urgent ? `<span class="urg">Терміново</span>` : ""}<span class="st ${st}">${STATUS[st] || st}</span></div>
+    ${whMulti() && whOf(o) ? `<div class="wh-from">🏭 ${esc(whOf(o).name)}</div>` : ""}
     <div class="wh-client">${esc(o.client || "")}${o.addr ? " · " + esc(o.addr) : ""}</div>
     <div class="wh-items">${esc(o.items || "Товар не вказано")}</div>
     ${o.size === "l" || o.size === "xl" ? `<div class="oc-tags" style="margin-bottom:8px"><div class="oc-tag dark">${SIZE[o.size]}</div></div>` : ""}
@@ -1754,6 +1863,8 @@ function orderCardHTML(o) {
   if(st === "problem") h += `<div class="oc-problem">⚠ ${esc(o.problem || "Проблема з доставкою")}</div>`;
   if(o.retItems) h += `<div class="oc-return ${["stock","client","redeliver"].includes(o.retState) ? "ok" : ""}">↩ Не доставлено: ${esc(o.retItems)}${o.retReason ? " · " + esc(o.retReason) : ""}<br><b>${esc(RET_STATE[o.retState] || "Чекає рішення логіста")}</b></div>`;
   if(tel) h += `<a class="oc-phone" href="tel:${tel}" onclick="event.stopPropagation()"><span class="ic">${IC.phone}</span>${esc(phoneNice(o.phone))}</a>`;
+  const wh = !isReq(o) && isActive(o) && !isDone(o) && st !== "enroute" ? whOf(o) : null;
+  if(wh && (whMulti() || myDriver() !== null)) h += `<a class="oc-wh" href="${routeUrl(wh.addr)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="ic">${IC.box}</span><span><small>Забрати товар</small><b>${esc(wh.name)}</b> · ${esc(wh.addr)}</span></a>`;
   if(o.addr) h += `<a class="oc-addr" href="${mapsUrl(o.addr)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="ic">${IC.pin}</span><span class="txt">${esc(o.addr)}</span></a>`;
   if(o.items) h += `<div class="oc-items"><b>Товар</b>${esc(o.items)}</div>`;
   if(o.notes) h += `<div class="oc-notes">${esc(o.notes)}</div>`;
@@ -1935,6 +2046,7 @@ function openModal(id) {
   }
   renderStatusPick();
   autoLift(); updateDue(); carHint();
+  populateWh(id ? (orders.find(x => x.id === id) || {}).wh : "");
   renderModalPhotos(id || null);
   { // заявки: підказка, підпис дати, режим «лише перегляд» для менеджера після погодження
     const o = id ? orders.find(x => x.id === id) : null, plan = can("plan");
@@ -2013,6 +2125,18 @@ function carHint() {
     : inf ? (inf.car ? "Авто: " + inf.car : "Авто для водія не вказано: «Ще → Налаштування → Водії та авто»")
     : "Авто закріплене за водієм: виберіть водія";
 }
+function whHint() {
+  const el = document.getElementById("fWhHint"); if(!el) return;
+  const w = whList().find(x => x.id === document.getElementById("fWh").value);
+  el.textContent = w ? "Забрати: " + w.addr : "";
+}
+function populateWh(val) {
+  const l = whList(), sel = document.getElementById("fWh");
+  document.getElementById("fWhWrap").style.display = l.length ? "" : "none";
+  sel.innerHTML = l.map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  sel.value = (l.find(w => w.id === val) || l[0] || {}).id || "";
+  whHint();
+}
 function populateMasters() {
   const sel = document.getElementById("fMaster");
   sel.innerHTML = `<option value="">— не призначено —</option>` + masters.map(m => `<option value="${esc(m.name)}">${esc(m.name)}${m.car ? " · " + esc(m.car) : " · авто не вказано"}</option>`).join("");
@@ -2039,6 +2163,7 @@ function readForm() {
     pay: document.getElementById("fPay").value,
     amount: +document.getElementById("fAmount").value || 0,
     driver: document.getElementById("fMaster").value,
+    wh: document.getElementById("fWh").value || "",
     seq: +document.getElementById("fSeq").value || 0,
     status: formStatus,
     collected: +document.getElementById("fCollected").value || 0,
@@ -2273,12 +2398,12 @@ function exportRows(data, title, fname) {
   const wb = XLSX.utils.book_new();
   const money = can("totals");
   const wsData = [["The Logistics · Доставка — " + title],
-    ["День","Дата","З","До","№","Клієнт","Телефон","Адреса","Поверх","Ліфт","Підйом","Товар","Габарит","Водій","Черга","Статус","Оплата", ...(money ? ["Товар, ₴","Доставка","Підйом","До сплати","Отримано"] : []),"Проблема","Не доставлено","Нотатки"]];
+    ["День","Дата","З","До","№","Клієнт","Телефон","Адреса","Поверх","Ліфт","Підйом","Товар","Габарит","Склад","Водій","Черга","Статус","Оплата", ...(money ? ["Товар, ₴","Доставка","Підйом","До сплати","Отримано"] : []),"Проблема","Не доставлено","Нотатки"]];
   [...data].sort((a,b) => (a.date+(a.time||"")).localeCompare(b.date+(b.time||""))).forEach(o => {
-    wsData.push([DAYS_UA[parseDate(o.date).getDay()], o.date, o.time||"", o.timeTo||"", o.num||"", o.client||"", o.phone||"", o.addr||"", o.floor||"", LIFT[o.lift]||"", o.lifting?"так":"", o.items||"", SIZE[o.size]||"", o.driver||"", +o.seq||"", STATUS[o.status]||"", PAY[o.pay]||"", ...(money ? [+o.amount||0, +o.fee||0, +o.liftCost||0, due(o), +o.collected||0] : []), o.problem||"", o.retItems ? o.retItems + (o.retReason ? " (" + o.retReason + ")" : "") : "", o.notes||""]);
+    wsData.push([DAYS_UA[parseDate(o.date).getDay()], o.date, o.time||"", o.timeTo||"", o.num||"", o.client||"", o.phone||"", o.addr||"", o.floor||"", LIFT[o.lift]||"", o.lifting?"так":"", o.items||"", SIZE[o.size]||"", whOf(o) ? whOf(o).name : "", o.driver||"", +o.seq||"", STATUS[o.status]||"", PAY[o.pay]||"", ...(money ? [+o.amount||0, +o.fee||0, +o.liftCost||0, due(o), +o.collected||0] : []), o.problem||"", o.retItems ? o.retItems + (o.retReason ? " (" + o.retReason + ")" : "") : "", o.notes||""]);
   });
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-  ws["!cols"] = [{wch:4},{wch:11},{wch:6},{wch:6},{wch:7},{wch:18},{wch:15},{wch:34},{wch:6},{wch:10},{wch:7},{wch:30},{wch:10},{wch:14},{wch:6},{wch:12},{wch:10},...(money?[{wch:9},{wch:9},{wch:8},{wch:10},{wch:9}]:[]),{wch:22},{wch:24},{wch:28}];
+  ws["!cols"] = [{wch:4},{wch:11},{wch:6},{wch:6},{wch:7},{wch:18},{wch:15},{wch:34},{wch:6},{wch:10},{wch:7},{wch:30},{wch:10},{wch:16},{wch:14},{wch:6},{wch:12},{wch:10},...(money?[{wch:9},{wch:9},{wch:8},{wch:10},{wch:9}]:[]),{wch:22},{wch:24},{wch:28}];
   XLSX.utils.book_append_sheet(wb, ws, "Доставки");
   if(money) {
     const by = {};
@@ -2310,7 +2435,10 @@ function renderSettings() {
     return `<div class="drv-item"><div class="avatar">${esc(initials(m.name))}</div><div class="di"><b>${esc(m.name)}</b><span>${[m.phone ? phoneNice(m.phone) : "", m.car, n ? "сьогодні " + n : ""].filter(Boolean).map(esc).join(" · ") || "—"}</span></div><button onclick="removeMaster(${i})" aria-label="Видалити">×</button></div>`;
   }).join("") || '<span class="muted">Додайте водіїв, щоб розподіляти доставки</span>';
   document.getElementById("mapRegion").value = mapRegion || "";
-  document.getElementById("warehouse").value = warehouse || "";
+  document.getElementById("whList").innerHTML = whList().map((w,i) => {
+    const n = orders.filter(o => o.date === today && isActive(o) && !isReq(o) && whOf(o) && whOf(o).id === w.id).length;
+    return `<div class="drv-item"><div class="avatar wh-av">${i + 1}</div><div class="di"><b>${esc(w.name)}${i === 0 ? " · основний" : ""}</b><span>${esc(w.addr)}${n ? " · сьогодні " + n : ""}</span></div>${i ? `<button onclick="whMain(${i})" title="Зробити основним" aria-label="Зробити основним">★</button>` : ""}<button onclick="removeWh(${i})" aria-label="Видалити">×</button></div>`;
+  }).join("") || '<span class="muted">Додайте хоча б один склад, щоб маршрут водія стартував з нього</span>';
   const sv = (id, v) => { const el = document.getElementById(id); if(el && document.activeElement !== el) el.value = v; };
   sv("tFee", tariff.fee || ""); sv("tFloor", tariff.floor || ""); sv("tLift", tariff.lift || "");
   document.getElementById("tFirst").checked = tariff.firstFree !== false;
@@ -2336,6 +2464,24 @@ function removeMaster(i) {
   masters.splice(i,1); saveData(); renderSettings(); renderChips();
 }
 function saveRegion(v) { mapRegion = v.trim(); saveData(); renderSchedule(); toast("Регіон для карт збережено","ok"); }
+function whSync() { if(!warehouses.length && warehouse) warehouses = whList().map(w => ({...w})); }
+function whAfter(msg) { warehouse = warehouses[0] ? warehouses[0].addr : ""; saveData(); renderSettings(); renderAll(); toast(msg, "ok"); }
+function addWh() {
+  const n = document.getElementById("newWhName"), a = document.getElementById("newWhAddr");
+  const addr = a.value.trim(); if(!addr) { a.focus(); return; }
+  whSync();
+  const name = n.value.trim() || "Склад " + (warehouses.length + 1);
+  warehouses.push({id: "w" + Date.now().toString(36), name, addr});
+  n.value = ""; a.value = "";
+  whAfter("Склад додано");
+}
+function removeWh(i) {
+  whSync(); const w = warehouses[i]; if(!w) return;
+  const used = orders.filter(o => o.wh === w.id && isActive(o) && !isDone(o)).length;
+  if(!confirm(`Видалити «${w.name}»?` + (used ? `\n${used} активних доставок перейдуть на основний склад.` : ""))) return;
+  warehouses.splice(i, 1); whAfter("Склад видалено");
+}
+function whMain(i) { whSync(); const [w] = warehouses.splice(i, 1); warehouses.unshift(w); whAfter(`«${w.name}» — основний склад`); }
 function saveWarehouse(v) { warehouse = v.trim(); saveData(); renderSchedule(); toast("Адресу складу збережено","ok"); }
 
 // ── Clear by period ──
@@ -2465,6 +2611,7 @@ function seedData() {
     {name:"Олег Савчук",  phone:"050 903 41 22", car:"VW Caddy, BC 0934 TI"}
   ];
   warehouse = "вул. Городоцька 359";
+  warehouses = [{id:"w1", name:"Склад Городоцька", addr:"вул. Городоцька 359"}, {id:"w2", name:"Склад Сихів", addr:"вул. Зубрівська 38"}];
   const now = Date.now();
   const raw = [
     {date:d(0),time:"09:00",timeTo:"10:30",num:"2401",client:"Ірина Гнатишин",phone:"067 555 12 40",addr:"вул. Наукова 7, кв. 41",floor:"6",lift:"yes",lifting:true,items:"Двері міжкімнатні «Порто» 80 см — 2 шт\nКоробка, лиштва, петлі",size:"l",pay:"cash",amount:14600,driver:"Андрій Коваль",seq:1,status:"delivered",collected:14600,deliveredAt:now-3*3600e3},
@@ -2483,6 +2630,7 @@ function seedData() {
   tariff = {fee:300, floor:50, lift:100, firstFree:true};
   tpl = {shopPhone:"032 240 00 00"}; opts = {logistPhone:"067 240 00 01"};
   Object.assign(S(0), {fee:300, units:2, liftCost:500, signed:true});
+  [2,5,8].forEach(i => S(i).wh = "w2");
   [0,1,3,7].forEach(i => Object.assign(S(i), {createdBy:"demo", createdByName:"Магазин · Олена"}));
   Object.assign(S(1), {fee:300, notifiedAt: now-20*60e3, eta:"12:30"});
   Object.assign(S(3), {fee:250, units:1, liftCost:100});
@@ -2609,7 +2757,7 @@ const firebaseConfig = {
   measurementId: "G-HY2KC3HQJT"
 };
 const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Магазин", driver:"Водій", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
-const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
+const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["wh","Склад"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
   ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"],["agreedAt","Погоджено з клієнтом"],["agreedBy","Погодив"],["fee","Доставка"],["units","Одиниць підйому"],["liftCost","Підйом"],["svcPaid","Послуги оплачені"],
   ["retItems","Не доставлено"],["retReason","Причина повернення"],["retState","Стан повернення"],["photos","Фото"],["signed","Підпис"],["notifiedAt","Клієнта повідомлено"],["eta","Орієнтовний час"],["remindedAt","Нагадування"],["picked","Зібрано"],["pickedBy","Зібрав"],["pickedAt","Час збирання"]];
 const BOOL_FIELDS = ["lifting","urgent","svcPaid","signed","picked"], NUM_FIELDS = ["agreedAt","amount","seq","collected","deliveredAt","fee","units","liftCost","photos","notifiedAt","remindedAt","pickedAt"];
@@ -2826,6 +2974,7 @@ function startData() {
       masters = Array.isArray(m.drivers) ? m.drivers.filter(x => x && x.name) : [];
       if(typeof m.region === "string") mapRegion = m.region;
       if(typeof m.warehouse === "string") warehouse = m.warehouse;
+      warehouses = Array.isArray(m.warehouses) ? m.warehouses.filter(x => x && x.addr) : [];
       tariff = m.tariff || {}; tpl = m.tpl || {}; opts = m.opts || {};
     }
     renderChips(); renderSchedule();
@@ -2986,7 +3135,7 @@ function diffFields(prev, cur) {
   });
   return ch;
 }
-function pickMeta(m) { return {drivers: (m && Array.isArray(m.drivers)) ? m.drivers : [], region: (m && typeof m.region === "string") ? m.region : "Львів", warehouse: (m && typeof m.warehouse === "string") ? m.warehouse : "", tariff: (m && m.tariff) || {}, tpl: (m && m.tpl) || {}, opts: (m && m.opts) || {}}; }
+function pickMeta(m) { return {drivers: (m && Array.isArray(m.drivers)) ? m.drivers : [], region: (m && typeof m.region === "string") ? m.region : "Львів", warehouse: (m && typeof m.warehouse === "string") ? m.warehouse : "", warehouses: (m && Array.isArray(m.warehouses)) ? m.warehouses.filter(x => x && x.addr) : [], tariff: (m && m.tariff) || {}, tpl: (m && m.tpl) || {}, opts: (m && m.opts) || {}}; }
 function orderLabel(o) {
   const d = o.date ? parseDate(o.date) : null;
   return `${o.client || "—"}${d ? ", " + d.getDate() + " " + MONTHS_GEN[d.getMonth()].toLowerCase() : ""}${o.time ? " о " + o.time : ""}`;
@@ -3069,7 +3218,7 @@ function saveData(label) {
   });
 
   if(can("admin")) {
-    const before = pickMeta(cloudMeta), after = {drivers: masters, region: mapRegion, warehouse, tariff, tpl, opts};
+    const before = pickMeta(cloudMeta), after = {drivers: masters, region: mapRegion, warehouse, warehouses, tariff, tpl, opts};
     if(JSON.stringify(before) !== JSON.stringify(after)) {
       updates["app/meta"] = {...after, updatedAt: now, updatedBy: name};
       const parts = [];
@@ -3079,6 +3228,7 @@ function saveData(label) {
       if(removed.length) parts.push("прибрав водія: " + removed.join(", "));
       if(before.region !== after.region) parts.push(`регіон карт: «${before.region}» → «${after.region}»`);
       if(before.warehouse !== after.warehouse) parts.push(`склад: «${before.warehouse}» → «${after.warehouse}»`);
+      if(JSON.stringify(before.warehouses) !== JSON.stringify(after.warehouses)) parts.push("склади: " + (after.warehouses.map(w => w.name).join(", ") || "—"));
       if(JSON.stringify(before.tariff) !== JSON.stringify(after.tariff)) parts.push(`тарифи: доставка ${fmt(tariff.fee)} ₴, поверх ${fmt(tariff.floor)} ₴, ліфт ${fmt(tariff.lift)} ₴`);
       if(JSON.stringify(before.tpl) !== JSON.stringify(after.tpl)) parts.push("тексти повідомлень клієнтам");
       if(JSON.stringify(before.opts) !== JSON.stringify(after.opts)) parts.push("параметри підтвердження доставки");
@@ -3138,7 +3288,7 @@ function writeLog(events, updates) {
 
 function revertToCloud() {
   orders = Object.keys(cloudOrders).map(mergedOrder);
-  if(cloudMeta) { const m = pickMeta(cloudMeta); masters = m.drivers; mapRegion = m.region; warehouse = m.warehouse; tariff = m.tariff; tpl = m.tpl; opts = m.opts; }
+  if(cloudMeta) { const m = pickMeta(cloudMeta); masters = m.drivers; mapRegion = m.region; warehouse = m.warehouse; warehouses = m.warehouses; tariff = m.tariff; tpl = m.tpl; opts = m.opts; }
   renderAll();
 }
 async function resync() {
@@ -3155,6 +3305,7 @@ function saveLocal() {
     localStorage.setItem("ld_drivers", JSON.stringify(masters));
     localStorage.setItem("ld_region",  mapRegion);
     localStorage.setItem("ld_warehouse", warehouse);
+    localStorage.setItem("ld_whs", JSON.stringify(warehouses));
     localStorage.setItem("ld_meta2", JSON.stringify({tariff, tpl, opts}));
     if(!fbDb) { localStorage.setItem("ld_cash", JSON.stringify(cashData)); localStorage.setItem("ld_daysoff", JSON.stringify(daysOff)); }
   } catch(e) {}
@@ -3165,6 +3316,7 @@ function loadLocal() {
     const m = localStorage.getItem("ld_drivers"); if(m) masters = JSON.parse(m);
     const r = localStorage.getItem("ld_region"); if(r !== null) mapRegion = r;
     const w = localStorage.getItem("ld_warehouse"); if(w !== null) warehouse = w;
+    const ws = localStorage.getItem("ld_whs"); if(ws) warehouses = JSON.parse(ws) || [];
     const m2 = localStorage.getItem("ld_meta2"); if(m2) { const x = JSON.parse(m2); tariff = x.tariff || {}; tpl = x.tpl || {}; opts = x.opts || {}; }
     const dof = localStorage.getItem("ld_daysoff"); if(dof) daysOff = JSON.parse(dof);
     const c = localStorage.getItem("ld_cash"); if(c && !fbDb) cashData = JSON.parse(c);
@@ -3188,6 +3340,7 @@ function startAdmin() {
       const pend = Object.values(usersCache).filter(u => u.role === "pending").length;
       const badge = document.getElementById("pendingBadge");
       badge.style.display = pend ? "inline-flex" : "none"; badge.textContent = pend;
+      const qp = document.getElementById("qPendBadge"); qp.style.display = pend ? "flex" : "none"; qp.textContent = pend;
       const pb = document.getElementById("profPending"); pb.style.display = pend ? "inline-flex" : "none"; pb.textContent = pend;
       const hd = document.getElementById("hdrUserDot"); hd.style.display = pend ? "flex" : "none"; hd.textContent = pend;
       if(pend && !window.__pendNotified) { window.__pendNotified = true; toast(`Нових користувачів очікують підтвердження: ${pend}`, "warn", 5000, {label:"Переглянути", fn:() => { goTab("settings",4); goSub("users"); }}); }
@@ -3406,6 +3559,7 @@ function renderProfile() {
 }
 function renderHeaderUser() {
   if(!me) return;
+  renderQuick();
   document.getElementById("hdrAvatar").textContent = initials(myName());
   document.getElementById("hdrUser").title = myName() + " · " + (ROLES[me.role] || "");
   renderProfile();
@@ -3671,6 +3825,7 @@ function bdCardHTML(o) {
   if(o.notifiedAt) tags.push(`<span class="oc-tag" title="Клієнта повідомлено">💬 ${esc(o.eta || timeHM(o.notifiedAt))}</span>`);
   if(+o.photos || o.signed) tags.push(`<span class="oc-tag">${+o.photos ? "📷" : ""}${o.signed ? "✍" : ""}</span>`);
   if(o.pay === "paid" || o.pay === "invoice") tags.push(`<span class="oc-tag paid">${PAY[o.pay]}</span>`);
+  if(whMulti() && !isReq(o) && whOf(o)) tags.unshift(`<span class="oc-tag" title="${esc(whOf(o).addr)}">🏭 ${esc(whOf(o).name)}</span>`);
   const sum = can("totals") && due(o) > 0 ? `<span class="bd-sum">${fmt(due(o))} ₴</span>` : "";
   return `<div class="bd-card ${isReq(o) ? "req" : ""} ${st === "problem" ? "problem" : ""} ${isDone(o) ? "done" : ""} ${st === "cancelled" ? "cancelled" : ""}" data-id="${id}" draggable="${drag}"
       ${drag ? `ondragstart="bdStart(event,'${id}')" ondragend="bdEnd(event)"` : ""} onclick="editOrder('${id}')">
