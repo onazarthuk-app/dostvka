@@ -47,7 +47,8 @@ exports.orderPush = onValueWritten(
     if (before && before.status !== after.status && STATUS[after.status]) {
       const extra = after.status === "problem" && after.problem ? ` · ${after.problem}`
         : after.status === "partial" && after.retItems ? ` · не доставлено: ${after.retItems}` : "";
-      tokensOf((u, uid) => ["admin", "user", "manager"].includes(u.role) && uid !== after.updatedBy).forEach((t) =>
+      // магазин отримує сповіщення лише про свої заявки
+      tokensOf((u, uid) => (["admin", "user"].includes(u.role) || (u.role === "manager" && uid === after.createdBy)) && uid !== after.updatedBy).forEach((t) =>
         msgs.push({ t, title: `${after.driver || "Водій"}: ${STATUS[after.status]}`, body: `${after.client || ""} · ${after.addr || ""}${extra}` }));
     }
     // 3) Складу: нове замовлення, яке треба зібрати, і повернення, яке везуть назад

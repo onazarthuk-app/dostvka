@@ -790,6 +790,13 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
   .hdr-top{padding-left:62px}
 }
 
+/* ПК: верхні панелі по центру */
+@media (min-width:1000px){
+  body.board-on .stats-bar{justify-content:center}
+  .bd-bar{justify-content:center;column-gap:28px}
+  .bd-date .today-btn{background:#fff;border-color:var(--line2);color:var(--ink)}
+  .bd-date .today-btn:hover{background:var(--surface2)}
+}
 /* ══════════ ЗАЯВКИ ══════════ */
 .st.request{background:#fff;border-color:var(--red);color:var(--red)}
 .seg-pick button.on.request{background:var(--red);border-color:var(--red);color:#fff}
@@ -1259,8 +1266,8 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
 
       <div class="form-sec plan-only">Виконання</div>
       <div class="fg-row plan-only">
-        <div class="fg"><label for="fMaster">Водій</label><select id="fMaster"></select></div>
-        <div class="fg"><label for="fSeq">№ у маршруті</label><input type="number" id="fSeq" min="0" placeholder="авто" inputmode="numeric"></div>
+        <div class="fg"><label for="fMaster">Водій і авто</label><select id="fMaster" onchange="carHint()"></select><div class="muted" id="fCarHint"></div></div>
+        <div class="fg"><label for="fSeq">Порядок у маршруті</label><input type="number" id="fSeq" min="0" placeholder="автоматично" inputmode="numeric"></div>
       </div>
       <div class="fg plan-only"><label>Статус</label><div class="seg-pick" id="fStatus"></div></div>
       <div class="fg-row plan-only" id="fDoneRow">
@@ -1431,7 +1438,11 @@ function driverNames() { return masters.map(m => m.name); }
 function driverInfo(name) { return masters.find(m => m.name === name) || null; }
 function myDriver() { return me && me.role === "driver" ? (me.driver || "") : null; }
 function isWarehouse() { return !!(me && me.role === "warehouse"); }
+function isStore() { return !!(me && me.role === "manager"); }
+// магазин бачить лише ті заявки й доставки, які створив сам
+function ownStore(o) { return !isStore() || (o && o.createdBy === me.uid); }
 function visibleOrders(list) {
+  if(isStore()) list = list.filter(ownStore);
   if(isWarehouse()) return list;
   const d = myDriver();
   if(d !== null) return list.filter(o => d && o.driver === d && !isReq(o));
@@ -1444,7 +1455,8 @@ function sortDay(list) {
     ? ((+a.seq||99) - (+b.seq||99)) || (a.time||"").localeCompare(b.time||"")
     : (a.time||"").localeCompare(b.time||"") || (a.driver||"").localeCompare(b.driver||"") || ((+a.seq||99) - (+b.seq||99)));
 }
-function nextNum() { const n = orders.map(o => parseInt(o.num)||0); return String(Math.max(2400, ...n) + 1); }
+let globalSeq = 0;
+function nextNum() { const n = orders.map(o => parseInt(o.num)||0); return String(Math.max(2400, globalSeq, ...n) + 1); }
 function nextSeq(date, driver, exceptId) {
   if(!driver) return 0;
   return Math.max(0, ...orders.filter(o => o.date === date && o.driver === driver && o.id !== exceptId).map(o => +o.seq||0)) + 1;
@@ -1484,7 +1496,7 @@ function renderAll() {
 function updateHeader() {
   document.getElementById("hdrMonth").textContent = MONTHS_UA[currentMonth] + " " + currentYear;
   const d = myDriver();
-  document.getElementById("hdrSub").textContent = isWarehouse() ? "Склад" : d !== null ? (d ? "Водій · " + d : "Кабінет водія") : "Доставка";
+  document.getElementById("hdrSub").textContent = me ? (ROLES[me.role] || "") : "";
   document.getElementById("demoBar").innerHTML = DEMO ? `<div class="demo-bar"><b>Демо-режим.</b> Сервер недоступний у цьому перегляді, тож дані тестові й зберігаються лише в браузері. Через профіль (аватар зліва вгорі) можна перемкнути роль на «Водій» чи «Склад», щоб побачити їхні екрани.</div>` : "";
 }
 
@@ -1513,7 +1525,7 @@ function renderStats() {
   const thisMonth = todayKey.startsWith(`${currentYear}-${pad(currentMonth+1)}`);
   // поточний місяць → показуємо день «сьогодні», інший місяць → увесь місяць
   const bd = boardActive();
-  const scope = bd ? orders.filter(o => o.date === boardDate) : thisMonth ? visibleOrders(orders.filter(o => o.date === todayKey)) : visibleOrders(getMonthOrders());
+  const scope = bd ? orders.filter(o => o.date === boardDate && ownStore(o)) : thisMonth ? visibleOrders(orders.filter(o => o.date === todayKey)) : visibleOrders(getMonthOrders());
   const act = scope.filter(o => isActive(o) && !isReq(o));
   const done = act.filter(isDone).length;
   const prob = act.filter(o => o.status === "problem").length;
@@ -1576,7 +1588,7 @@ function renderSchedule() {
   if(isWarehouse()) return renderWarehouse(box, monthOrders, todayKey);
   if(boardActive()) return renderBoard(box);
   if(!drvMode && can("edit")) {
-    const reqs = orders.filter(o => isReq(o) && isActive(o)).sort((a,b) => (a.date||"").localeCompare(b.date||"") || (a.createdAt||0) - (b.createdAt||0));
+    const reqs = orders.filter(o => isReq(o) && isActive(o) && ownStore(o)).sort((a,b) => (a.date||"").localeCompare(b.date||"") || (a.createdAt||0) - (b.createdAt||0));
     if(reqs.length) html += `<div class="req-block"><div class="req-hd">${can("plan") ? "Заявки: погодьте дату й час" : "Заявки в роботі логіста"}<span>${reqs.length}</span></div>${reqs.map(orderCardHTML).join("")}</div>`;
   }
 
@@ -1922,7 +1934,7 @@ function openModal(id) {
     document.getElementById("editBtns").style.display = "none";
   }
   renderStatusPick();
-  autoLift(); updateDue();
+  autoLift(); updateDue(); carHint();
   renderModalPhotos(id || null);
   { // заявки: підказка, підпис дати, режим «лише перегляд» для менеджера після погодження
     const o = id ? orders.find(x => x.id === id) : null, plan = can("plan");
@@ -1994,9 +2006,16 @@ function fillForm(o) {
   const lc = document.getElementById("fLiftCost");
   lc.dataset.manual = (+o.liftCost && +o.liftCost !== calcLiftFromForm()) ? "1" : "";
 }
+function carHint() {
+  const el = document.getElementById("fCarHint"); if(!el) return;
+  const inf = driverInfo(document.getElementById("fMaster").value);
+  el.textContent = !masters.length ? "Водіїв ще не додано: «Ще → Налаштування → Водії та авто»"
+    : inf ? (inf.car ? "Авто: " + inf.car : "Авто для водія не вказано: «Ще → Налаштування → Водії та авто»")
+    : "Авто закріплене за водієм: виберіть водія";
+}
 function populateMasters() {
   const sel = document.getElementById("fMaster");
-  sel.innerHTML = `<option value="">— не призначено —</option>` + masters.map(m => `<option value="${esc(m.name)}">${esc(m.name)}${m.car ? " · " + esc(m.car) : ""}</option>`).join("");
+  sel.innerHTML = `<option value="">— не призначено —</option>` + masters.map(m => `<option value="${esc(m.name)}">${esc(m.name)}${m.car ? " · " + esc(m.car) : " · авто не вказано"}</option>`).join("");
 }
 
 // ═══════════════════════════════════════
@@ -2464,6 +2483,7 @@ function seedData() {
   tariff = {fee:300, floor:50, lift:100, firstFree:true};
   tpl = {shopPhone:"032 240 00 00"}; opts = {logistPhone:"067 240 00 01"};
   Object.assign(S(0), {fee:300, units:2, liftCost:500, signed:true});
+  [0,1,3,7].forEach(i => Object.assign(S(i), {createdBy:"demo", createdByName:"Магазин · Олена"}));
   Object.assign(S(1), {fee:300, notifiedAt: now-20*60e3, eta:"12:30"});
   Object.assign(S(3), {fee:250, units:1, liftCost:100});
   Object.assign(S(7), {remindedAt: now-2*3600e3});
@@ -2472,10 +2492,10 @@ function seedData() {
   orders.push(
     {id:"seed_r1", num:"2410", date:d(1), time:"", timeTo:"", client:"Остап Семенюк", phone:"067 330 18 22", addr:"вул. Пасічна 94, кв. 12", floor:"4", lift:"no", lifting:true, urgent:false,
      items:"Двері міжкімнатні «Ліон» 70 см — 3 шт\nДоборні планки", size:"l", pay:"cash", amount:16200, driver:"", seq:0, status:"request", notes:"Клієнт удома після 14:00",
-     problem:"", collected:0, deliveredAt:0, createdAt:now-40*60e3, createdByName:"Магазин · Олена"},
+     problem:"", collected:0, deliveredAt:0, createdAt:now-40*60e3, createdBy:"demo", createdByName:"Магазин · Олена"},
     {id:"seed_r2", num:"2411", date:d(2), time:"", timeTo:"", client:"ФОП Гаврилюк", phone:"098 774 02 15", addr:"вул. Зелена 147", floor:"", lift:"", lifting:false, urgent:true,
      items:"Плитка Golden Tile 60×60 — 18 м²\nЗатирка — 4 шт", size:"l", pay:"invoice", amount:0, driver:"", seq:0, status:"request", notes:"",
-     problem:"", collected:0, deliveredAt:0, createdAt:now-12*60e3, createdByName:"Магазин · Олена"});
+     problem:"", collected:0, deliveredAt:0, createdAt:now-12*60e3, createdBy:"demo", createdByName:"Магазин · Олена"});
   Object.assign(S(9), {status:"partial", retItems:"Двері «Марк» 70 см — 1 шт", retReason:"Брак / пошкодження", retState:"back", collected:12400});
   driverLocs = {
     a: {name:"Андрій Коваль", lat:49.8121, lng:24.0563, ts: now-3*60e3},
@@ -2767,16 +2787,20 @@ function onSignedOut() {
 function startData() {
   if(dataStarted || !fbDb) return;
   dataStarted = true; firstOrders = true; dataRole = me && me.role;
-  const oref = fbDb.ref("app/orders");
+  const oref = isStore() ? fbDb.ref("app/orders").orderByChild("createdBy").equalTo(me.uid) : fbDb.ref("app/orders");
+  const refs = [];
   oref.on("value", snap => {
     const val = snap.val() || {};
+    if(isStore()) watchStoreContacts(Object.keys(val), refs);
     if(!firstOrders) notifyChanges(val);
     firstOrders = false;
     cloudOrders = JSON.parse(JSON.stringify(val));
     rebuildOrders();
   }, onDbError);
-  const refs = [oref];
-  if(can("phone")) {
+  refs.push(oref);
+  const sref = fbDb.ref("app/seq");
+  if(can("edit")) { sref.on("value", s => { globalSeq = +s.val() || 0; }, err => console.warn("app/seq", err)); refs.push(sref); }
+  if(can("phone") && !isStore()) {
     const pref = fbDb.ref("app/contacts");
     pref.on("value", snap => { cloudContacts = JSON.parse(JSON.stringify(snap.val() || {})); contactsLoaded = true; rebuildOrders(); },
       err => { console.warn("app/contacts", err); contactsLoaded = false; if(can("edit") && !window.__rulesWarned) { window.__rulesWarned = true; toast("Оновіть правила бази у Firebase (database.rules.json), щоб сховати телефони клієнтів від водіїв", "warn", 8000); } });
@@ -2867,7 +2891,20 @@ function notifyChanges(next) {
 }
 function stopData() {
   dataRefs.forEach(r => r.off()); dataRefs = []; dataStarted = false; daysOffDenied = false;
+  Object.keys(storeContactRefs).forEach(k => { storeContactRefs[k].off(); delete storeContactRefs[k]; }); cloudContacts = {};
   contactsLoaded = false; dataRole = null;
+}
+// магазин читає телефони лише своїх заявок (по одній), бо загальний розділ контактів йому закритий
+const storeContactRefs = {};
+function watchStoreContacts(keys, refs) {
+  contactsLoaded = true;
+  keys.forEach(k => {
+    if(storeContactRefs[k]) return;
+    const r = fbDb.ref("app/contacts/" + k);
+    storeContactRefs[k] = r;
+    r.on("value", s => { if(s.val()) cloudContacts[k] = s.val(); else delete cloudContacts[k]; rebuildOrders(); }, err => console.warn("contact", k, err));
+    refs.push(r);
+  });
 }
 // доставка + телефон (лише для ролей, яким його видно)
 function mergedOrder(k) {
@@ -2877,13 +2914,14 @@ function mergedOrder(k) {
   return o;
 }
 function rebuildOrders() {
+  if(isStore()) Object.keys(cloudOrders).forEach(k => { if(!ownStore(cloudOrders[k])) delete cloudOrders[k]; });
   orders = Object.keys(cloudOrders).map(mergedOrder);
   saveLocal(); renderAll(); hideSplash();
   migratePhones();
 }
 // одноразово: телефони зі старих записів переносяться в захищений розділ app/contacts
 function migratePhones() {
-  if(phonesMigrated || !fbDb || !can("edit") || !contactsLoaded) return;
+  if(phonesMigrated || !fbDb || !can("edit") || isStore() || !contactsLoaded) return;
   const up = {};
   for(const k in cloudOrders) {
     const ph = cloudOrders[k].phone;
@@ -2979,6 +3017,8 @@ function saveData(label) {
       const rec = clean(o), ph = rec.phone; delete rec.phone;
       updates["app/orders/" + k] = rec;
       if(ph) updates["app/contacts/" + k] = {phone: ph};
+      const nn = parseInt(o.num) || 0;
+      if(nn > globalSeq) { globalSeq = nn; updates["app/seq"] = nn; }
       events.push({action:"create", orderId:o.id, client:o.client||"", date:o.date||"", text:"Додав доставку: " + orderLabel(o)});
     } else {
       const prev = mergedOrder(k);
@@ -3103,7 +3143,7 @@ function revertToCloud() {
 }
 async function resync() {
   try {
-    const v = (await fbDb.ref("app/orders").once("value")).val() || {};
+    const v = (await (isStore() ? fbDb.ref("app/orders").orderByChild("createdBy").equalTo(me.uid) : fbDb.ref("app/orders")).once("value")).val() || {};
     cloudOrders = JSON.parse(JSON.stringify(v));
     revertToCloud();
   } catch(e) { revertToCloud(); }
@@ -3566,9 +3606,9 @@ function bdSort(a, b) { return ((+a.seq||99) - (+b.seq||99)) || (a.time||"").loc
 function renderBoard(box) {
   const key = boardDate, d = parseDate(key), todayKey = fmtDate(new Date());
   const off = dayOffInfo(key, d.getDay());
-  const list = orders.filter(o => o.date === key && !isReq(o));
+  const list = orders.filter(o => o.date === key && !isReq(o) && ownStore(o));
   const act = list.filter(isActive);
-  const reqs = orders.filter(o => isReq(o) && isActive(o)).sort((a,b) => (a.date||"").localeCompare(b.date||"") || (a.createdAt||0) - (b.createdAt||0));
+  const reqs = orders.filter(o => isReq(o) && isActive(o) && ownStore(o)).sort((a,b) => (a.date||"").localeCompare(b.date||"") || (a.createdAt||0) - (b.createdAt||0));
   const rel = key === todayKey ? "Сьогодні" : key === tomorrowKey() ? "Завтра" : key === fmtDate(new Date(Date.now() - 86400000)) ? "Вчора" : DAYS_FULL[d.getDay()];
   const edit = can("edit");
   let h = `<div class="bd-bar">
