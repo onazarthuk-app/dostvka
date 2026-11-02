@@ -1,6 +1,7 @@
 // Push-сповіщення для «The Logistics · Доставка».
 // Працює на тарифі Blaze (Cloud Functions). Розгортання: firebase deploy --only functions
-const { onValueWritten } = require("firebase-functions/v2/database");
+const { onValueWritten, onValueDeleted } = require("firebase-functions/v2/database");
+const { getAuth } = require("firebase-admin/auth");
 const { initializeApp } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
 const { getMessaging } = require("firebase-admin/messaging");
@@ -53,7 +54,8 @@ exports.orderPush = onValueWritten(
     }
     // 3) Складу: нове замовлення, яке треба зібрати, і повернення, яке везуть назад
     if (!closed && !isReq(after) && (!before || isReq(before))) {
-      tokensOf((u) => u.role === "warehouse").forEach((t) =>
+      // працівник, прив'язаний до складу, отримує лише замовлення свого складу
+      tokensOf((u) => u.role === "warehouse" && (!u.wh || !after.wh || u.wh === after.wh)).forEach((t) =>
         msgs.push({ t, title: "Зібрати замовлення", body: `${after.date} ${when} · ${(after.items || "").split("\n")[0]}` }));
     }
     if (after.retItems && after.retState === "back" && (!before || before.retState !== "back")) {
@@ -80,5 +82,15 @@ exports.orderPush = onValueWritten(
       }
     });
     if (Object.keys(dead).length) await db.ref().update(dead);
+  }
+);
+
+// Адміністратор видалив користувача в програмі — видаляємо і його акаунт входу,
+// щоб людина не могла зайти знову з тим самим email і паролем.
+exports.userDeleted = onValueDeleted(
+  { ref: "/app/users/{uid}", region: "europe-west1", instance: "dostavka-ed553-default-rtdb" },
+  async (event) => {
+    try { await getAuth().deleteUser(event.params.uid); }
+    catch (e) { if (e.code !== "auth/user-not-found") throw e; }
   }
 );

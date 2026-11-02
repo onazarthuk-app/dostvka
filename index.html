@@ -850,6 +850,10 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
 .viewer-bar{position:fixed;left:0;right:0;bottom:18px;display:flex;justify-content:center;gap:10px}
 .viewer-bar .settings-btn{text-decoration:none;background:#fff}
 .viewer-bar .settings-btn.dark{background:var(--ink);color:#fff}
+.bk-last{font-size:13px;font-weight:700;margin:6px 0 10px;color:var(--text2)}
+.bk-last.old{color:var(--red)}
+.btn-del{border:1px solid var(--red-line,#f3c4bf);background:#fff;color:var(--red);border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer}
+.btn-del:hover{background:var(--red);color:#fff}
 /* ПК: верхні панелі по центру */
 @media (min-width:1000px){
   body.board-on .stats-bar{justify-content:center}
@@ -1008,6 +1012,10 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
   <button class="bn bq " data-q="set" onclick="quickSub('set')" title="Налаштування">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     <span>Налаштування</span>
+  </button>
+  <button class="bn bq adm-only" data-q="backup" onclick="quickBackup()" title="Резервна копія">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3"/><path d="M18 15v6M15 18l3 3 3-3"/></svg>
+    <span>Резервна копія</span>
   </button>
   <button class="bq-me" onclick="openProfile()" title="Профіль">
     <span class="avatar" id="qMeAv">?</span><span class="bq-me-t"><b id="qMeName">—</b><small id="qMeRole">—</small></span>
@@ -1172,6 +1180,19 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
       <div class="settings-row"><div><div class="sr-lbl">Обов'язковий підпис клієнта</div><div class="sr-sub">Для повної доставки</div></div><label class="switch"><input type="checkbox" id="oSign" onchange="saveOpts()"><span></span></label></div>
       <div class="settings-row" style="display:block"><div class="sr-lbl">Текст акту отримання товару</div><div class="sr-sub" style="margin-bottom:8px">Клієнт підписує його при повній доставці. <code>{номер}</code> — номер замовлення, <code>{клієнт}</code> — ім'я. Залиште порожнім для стандартного тексту.</div><textarea class="inp" id="oActText" rows="4" onchange="saveOpts()"></textarea></div>
       <div class="settings-row" style="display:block"><div class="sr-lbl">Ключ Web Push (VAPID)</div><div class="sr-sub" style="margin-bottom:8px">Firebase Console → Project settings → Cloud Messaging → Web Push certificates. Потрібен, щоб сповіщення приходили при закритій програмі.</div><input class="inp" id="oVapid" placeholder="BPx…" autocomplete="off" onchange="saveOpts()"></div>
+    </div>
+
+    <div class="settings-section adm-only" id="backupSec">
+      <div class="sec-hd">Резервна копія</div>
+      <div class="clr-body">
+        <div class="muted" style="margin-bottom:10px">Один файл .zip: уся база (доставки, телефони клієнтів, користувачі, налаштування, склади, каса, журнал, фото й акти) і файли самої програми. Зберігайте його на комп'ютері або в хмарі.</div>
+        <label class="check-row"><input type="checkbox" id="bkPhotos" checked> Разом із фото й актами (файл більший)</label>
+        <div class="bk-last" id="bkLast">Копій ще не робили</div>
+        <button class="settings-btn dark full" id="bkBtn" onclick="makeBackup()">⬇ Створити резервну копію</button>
+        <button class="settings-btn full" style="margin-top:8px" onclick="document.getElementById('bkFile').click()">⟲ Відновити з копії…</button>
+        <input type="file" id="bkFile" accept=".zip,.json" style="display:none" onchange="restoreBackup(this)">
+        <div class="muted" style="margin-top:8px">Відновлення замінює доставки, телефони, налаштування, касу й вихідні даними з копії. Користувачі не видаляються. Перед відновленням програма сама збереже поточну копію.</div>
+      </div>
     </div>
 
     <div class="settings-section adm-only">
@@ -1371,10 +1392,12 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
       <label class="check-row price-only"><input type="checkbox" id="fSvcPaid" onchange="updateDue()"> Доставка й підйом уже оплачені</label>
       <div class="sum-preview price-only" id="duePreview"></div>
 
+      <div class="form-sec" id="fWhSec">Склад завантаження</div>
+      <div class="oc-wh" id="fWhRo" style="display:none"></div>
+      <div class="fg edit-only" id="fWhWrap"><label for="fWh">З якого складу забрати товар</label><select id="fWh" onchange="whHint()"></select><div class="muted" id="fWhHint"></div></div>
+
       <div class="form-sec plan-only">Виконання</div>
       <div class="fg-row plan-only">
-        <div class="oc-wh" id="fWhRo" style="display:none"></div>
-        <div class="fg plan-only" id="fWhWrap"><label for="fWh">Склад відвантаження</label><select id="fWh" onchange="whHint()"></select><div class="muted" id="fWhHint"></div></div>
         <div class="fg"><label for="fMaster">Водій і авто</label><select id="fMaster" onchange="carHint()"></select><div class="muted" id="fCarHint"></div></div>
         <div class="fg"><label for="fSeq">Порядок у маршруті</label><input type="number" id="fSeq" min="0" placeholder="автоматично" inputmode="numeric"></div>
       </div>
@@ -2185,11 +2208,12 @@ function whHint() {
 function populateWh(val) {
   const l = whList(), sel = document.getElementById("fWh");
   document.getElementById("fWhWrap").style.display = l.length ? "" : "none";
+  document.getElementById("fWhSec").style.display = l.length ? "" : "none";
   sel.innerHTML = l.map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   sel.value = (l.find(w => w.id === val) || l[0] || {}).id || "";
   whHint();
   const ro = document.getElementById("fWhRo"), w = l.find(x => x.id === sel.value);
-  ro.style.display = w && !can("plan") ? "" : "none";
+  ro.style.display = w && !can("edit") ? "" : "none";
   if(w) ro.innerHTML = `<span class="ic">${IC.box}</span><span><small>Забрати товар зі складу</small><b>${esc(w.name)}</b> · <a href="${routeUrl(w.addr)}" target="_blank" rel="noopener">${esc(w.addr)}</a></span>`;
 }
 function populateMasters() {
@@ -2482,7 +2506,7 @@ function exportExcelAll() {
 // SETTINGS
 // ═══════════════════════════════════════
 function renderSettings() {
-  renderProfile();
+  renderProfile(); renderBackupInfo();
   if(!can("admin")) return;
   const today = fmtDate(new Date());
   document.getElementById("mastersList").innerHTML = masters.map((m,i) => {
@@ -2932,7 +2956,7 @@ async function onSignedIn(user) {
 }
 
 function onRoleChanged(prevRole, prevDrv) {
-  applyRoleUI();
+  applyRoleUI(); checkBackupAge();
   if(!can("view")) {
     stopData();
     showWait(me.role);
@@ -3445,6 +3469,155 @@ function setUserRole(uid, role) {
   writeLog([{action:"admin", text: uid === me.uid ? `Змінив свою роль: ${ROLES[u.role] || u.role} → ${ROLES[role]}` : `Змінив роль користувача «${fullName(u) || u.email}»: ${ROLES[u.role] || u.role} → ${ROLES[role]}`}], up);
   fbDb.ref().update(up).then(() => toast(`${fullName(u) || u.email}: ${ROLES[role]}`, "ok")).catch(err => { toast("Не вдалося: " + err.message, "err"); renderUsers(); });
 }
+// ═══════════════ РЕЗЕРВНА КОПІЯ ═══════════════
+const BK_NODES = ["orders", "contacts", "meta", "users", "cash", "daysoff", "seq", "hasAdmin", "log", "photos"];
+const APP_FILES = ["index.html", "sw.js", "manifest.webmanifest", "favicon.ico", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-192.png", "icon-maskable-512.png"];
+let bkAt = 0;
+function loadZip() {
+  if(window.JSZip) return Promise.resolve(window.JSZip);
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    s.onload = () => res(window.JSZip); s.onerror = () => rej(new Error("Не вдалося завантажити модуль архіву. Перевірте інтернет."));
+    document.head.appendChild(s);
+  });
+}
+function bkStamp(d) { d = d || new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`; }
+function saveBlob(blob, name) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+async function collectData(withPhotos) {
+  const data = {};
+  if(!fbDb) {   // демо: дані з цього браузера
+    const ord = {}, con = {};
+    orders.forEach(o => { const k = fbKey(o.id), r = {...o}; if(r.phone) con[k] = {phone: r.phone}; delete r.phone; ord[k] = r; });
+    Object.assign(data, {orders: ord, contacts: con, meta: {drivers: masters, region: mapRegion, warehouse, warehouses, tariff, tpl, opts}, cash: cashData, daysoff: daysOff});
+    if(withPhotos) data.photos = demoPhotos;
+    return data;
+  }
+  for(const n of BK_NODES) {
+    if(n === "photos" && !withPhotos) continue;
+    data[n] = (await fbDb.ref("app/" + n).once("value")).val();
+  }
+  return data;
+}
+async function makeBackup(opt) {
+  opt = opt || {};
+  if(!can("admin")) { toast("Резервну копію робить адміністратор", "err"); return false; }
+  const btn = document.getElementById("bkBtn"); if(btn) { btn.disabled = true; btn.textContent = "Готую копію…"; }
+  try {
+    const withPhotos = opt.photos ?? (document.getElementById("bkPhotos") || {checked: true}).checked;
+    const [JSZip, data] = await Promise.all([loadZip(), collectData(withPhotos)]);
+    const now = new Date();
+    const n = o => o ? Object.keys(o).length : 0;
+    const info = {app: "The Logistics · Доставка", version: 1, createdAt: now.getTime(), createdAtText: now.toLocaleString("uk-UA"), by: myName(), photos: withPhotos,
+      counts: {orders: n(data.orders), users: n(data.users), photos: n(data.photos), log: n(data.log)}};
+    const zip = new JSZip();
+    zip.file("backup.json", JSON.stringify({info, data}));
+    const appDir = zip.folder("app");
+    let files = 0;
+    if(location.protocol.startsWith("http")) {
+      for(const f of APP_FILES) {
+        try { const r = await fetch(f, {cache: "no-store"}); if(r.ok) { appDir.file(f, await r.blob()); files++; } } catch(e) {}
+      }
+    }
+    zip.file("README.txt", [
+      "THE LOGISTICS · РЕЗЕРВНА КОПІЯ", "Створено: " + info.createdAtText + " · " + info.by,
+      `Доставок: ${info.counts.orders}, користувачів: ${info.counts.users}, з фото: ${withPhotos ? "так (" + info.counts.photos + " доставок)" : "ні"}`, "",
+      "ВІДНОВИТИ ДАНІ: програма → Ще → Налаштування → «Резервна копія» → «Відновити з копії…» → вибрати цей .zip.",
+      "ВІДНОВИТИ ПРОГРАМУ: файли з теки app/ залити на хостинг (GitHub Pages) замість поточних.",
+      "Файл містить телефони клієнтів — зберігайте його в надійному місці."].join("\r\n"));
+    const blob = await zip.generateAsync({type: "blob", compression: "DEFLATE", compressionOptions: {level: 6}});
+    saveBlob(blob, `TheLogistics_backup_${opt.tag ? opt.tag + "_" : ""}${bkStamp(now)}.zip`);
+    bkAt = now.getTime();
+    try { localStorage.setItem("ld_bkAt", String(bkAt)); } catch(e) {}
+    if(fbDb) { fbDb.ref("app/backupAt").set({ts: bkAt, by: myName()}).catch(() => {}); writeLog([{action: "admin", text: `Створив резервну копію (${info.counts.orders} доставок${withPhotos ? ", з фото" : ""})`}]); }
+    renderBackupInfo();
+    toast(`Резервну копію збережено · ${(blob.size / 1048576).toFixed(1)} МБ${files ? "" : " (без файлів програми)"}`, "ok", 5000);
+    return true;
+  } catch(e) {
+    console.error(e); toast("Копію не створено: " + e.message, "err", 6000); return false;
+  } finally { if(btn) { btn.disabled = false; btn.textContent = "⬇ Створити резервну копію"; } }
+}
+function quickBackup() { quickSub("set"); setTimeout(() => { const s = document.getElementById("backupSec"); if(s) s.scrollIntoView({behavior: "smooth", block: "center"}); }, 150); quickMark("backup"); }
+function renderBackupInfo() {
+  const el = document.getElementById("bkLast"); if(!el) return;
+  try { bkAt = Math.max(bkAt, +localStorage.getItem("ld_bkAt") || 0); } catch(e) {}
+  const days = bkAt ? Math.floor((Date.now() - bkAt) / 86400000) : null;
+  el.textContent = bkAt ? `Остання копія: ${new Date(bkAt).toLocaleString("uk-UA", {day: "numeric", month: "long", hour: "2-digit", minute: "2-digit"})}${days ? ` (${days} ${plural(days, "день", "дні", "днів")} тому)` : ""}` : "Копій ще не робили";
+  el.classList.toggle("old", !bkAt || days >= 7);
+}
+function checkBackupAge() {
+  if(!fbDb || !can("admin") || window.__bkChecked) return;
+  window.__bkChecked = true;
+  fbDb.ref("app/backupAt").once("value").then(s => {
+    const v = s.val(); if(v && v.ts) bkAt = Math.max(bkAt, v.ts);
+    renderBackupInfo();
+    if(!bkAt || Date.now() - bkAt > 7 * 86400000) setTimeout(() => toast(bkAt ? "Резервній копії вже більше тижня" : "Зробіть першу резервну копію бази", "warn", 8000, {label: "Зробити", fn: () => makeBackup()}), 4000);
+  }).catch(() => {});
+}
+async function readBackupFile(file) {
+  if(/\.json$/i.test(file.name)) return JSON.parse(await file.text());
+  const JSZip = await loadZip(), zip = await JSZip.loadAsync(file);
+  const f = zip.file("backup.json"); if(!f) throw new Error("У архіві немає backup.json");
+  return JSON.parse(await f.async("string"));
+}
+async function restoreBackup(inp) {
+  const file = inp.files && inp.files[0]; inp.value = "";
+  if(!file) return;
+  if(!can("admin")) { toast("Відновлює лише адміністратор", "err"); return; }
+  let pack;
+  try { pack = await readBackupFile(file); } catch(e) { toast("Не вдалося прочитати копію: " + e.message, "err", 6000); return; }
+  const d = pack && pack.data, info = (pack && pack.info) || {};
+  if(!d || typeof d !== "object" || !("orders" in d)) { toast("Це не резервна копія The Logistics", "err"); return; }
+  const n = o => o ? Object.keys(o).length : 0;
+  if(!confirm(`Відновити дані з копії від ${info.createdAtText || "невідомої дати"}?\n\nДоставок у копії: ${n(d.orders)}${d.photos ? ", фото: " + n(d.photos) : ""}.\nПоточні доставки, телефони, налаштування, каса й вихідні будуть замінені. Користувачі залишаться.`)) return;
+  if(!confirm("Точно відновити? Спершу програма збереже поточну копію на цей пристрій.")) return;
+  if(!(await makeBackup({tag: "before-restore", photos: true})) && !confirm("Поточну копію зберегти не вдалося. Все одно відновити?")) return;
+  try {
+    toast("Відновлюю дані…", "info", 3000);
+    if(!fbDb) {   // демо
+      orders = Object.entries(d.orders || {}).map(([k, o]) => ({...o, id: o.id || k, phone: (d.contacts && d.contacts[k] && d.contacts[k].phone) || o.phone || ""}));
+      const m = pickMeta(d.meta); masters = m.drivers; mapRegion = m.region; warehouse = m.warehouse; warehouses = m.warehouses; tariff = m.tariff; tpl = m.tpl; opts = m.opts;
+      cashData = d.cash || {}; daysOff = d.daysoff || {}; if(d.photos) demoPhotos = d.photos;
+      saveLocal(); renderAll(); renderSettings(); toast("Дані відновлено ✓", "ok"); return;
+    }
+    const cur = {};
+    for(const node of ["orders", "contacts"].concat(d.photos ? ["photos"] : [])) cur[node] = (await fbDb.ref("app/" + node).once("value")).val() || {};
+    const ups = [];
+    for(const node of Object.keys(cur)) {
+      const src = d[node] || {};
+      Object.keys(cur[node]).forEach(k => { if(!(k in src)) ups.push(["app/" + node + "/" + k, null]); });
+      Object.entries(src).forEach(([k, v]) => ups.push(["app/" + node + "/" + k, v]));
+    }
+    ["meta", "cash", "daysoff"].forEach(node => ups.push(["app/" + node, d[node] ?? null]));
+    if(d.seq) ups.push(["app/seq", Math.max(+d.seq || 0, globalSeq || 0)]);
+    Object.entries(d.users || {}).forEach(([uid, u]) => { if(uid !== me.uid && u && !(usersCache && usersCache[uid])) ups.push(["app/users/" + uid, u]); });
+    // пишемо частинами, щоб не впертися в ліміт розміру одного запису
+    let batch = {}, size = 0, done = 0;
+    const flush = async () => { if(!Object.keys(batch).length) return; await fbDb.ref().update(batch); done += Object.keys(batch).length; batch = {}; size = 0; };
+    for(const [path, val] of ups) {
+      const s = val ? JSON.stringify(val).length : 10;
+      if(size + s > 4e6) await flush();
+      batch[path] = val; size += s;
+    }
+    await flush();
+    writeLog([{action: "admin", text: `Відновив дані з резервної копії від ${info.createdAtText || "?"} (${n(d.orders)} доставок)`}]);
+    toast(`Дані відновлено ✓ (${n(d.orders)} доставок)`, "ok", 5000);
+  } catch(e) { console.error(e); toast("Помилка відновлення: " + e.message + ". Поточна копія збережена на пристрої.", "err", 8000); }
+}
+
+// ═══════════════ ВИДАЛЕННЯ КОРИСТУВАЧА ═══════════════
+function deleteUser(uid) {
+  const u = usersCache[uid]; if(!u || !fbDb || !can("admin") || uid === me.uid) return;
+  const nm = fullName(u) || u.email || "користувача";
+  if(!confirm(`Видалити «${nm}»${u.email ? " (" + u.email + ")" : ""}?\n\nЛюдина втратить доступ до програми, а її доставки, акти й записи журналу залишаться.`)) return;
+  const up = {[`app/users/${uid}`]: null};
+  if(u.role === "driver" && u.driver) up[`app/locations/${fbKey(u.driver)}`] = null;
+  writeLog([{action: "admin", text: `Видалив користувача «${nm}»${u.email ? " · " + u.email : ""} (${ROLES[u.role] || u.role})`}], up);
+  fbDb.ref().update(up).then(() => toast(`${nm}: видалено`, "ok")).catch(err => { toast("Не вдалося: " + err.message, "err"); renderUsers(); });
+}
 function setUserWh(uid, id) {
   const u = usersCache[uid]; if(!u || !fbDb) return;
   const w = whList().find(x => x.id === id);
@@ -3726,6 +3899,7 @@ function renderUsers() {
         ${u.role === "pending" ? `<button class="btn-approve dark" onclick="setUserRole('${uid}','manager')">✓ Магазин</button><button class="btn-approve dark" onclick="setUserRole('${uid}','user')">✓ Логіст</button><button class="btn-approve" onclick="setUserRole('${uid}','driver')">✓ Водій</button><button class="btn-approve dark" onclick="setUserRole('${uid}','warehouse')">✓ Склад</button>` : ""}
         ${lockAdmin ? `<span class="muted">Змінює лише адміністратор</span>` : `<select class="inp" onchange="setUserRole('${uid}', this.value)">${opts}</select>`}
         ${drvSel}
+        ${can("admin") && !self ? `<button class="btn-del" onclick="deleteUser('${uid}')" title="Видалити користувача">🗑 Видалити</button>` : ""}
       </div>
     </div>`;
   }).join("");
