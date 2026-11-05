@@ -854,6 +854,32 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
 .bk-last.old{color:var(--red)}
 .btn-del{border:1px solid var(--red-line,#f3c4bf);background:#fff;color:var(--red);border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer}
 .btn-del:hover{background:var(--red);color:#fff}
+.inv-box{margin-bottom:6px}
+.inv-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-bottom:8px}
+.inv-list:empty{display:none}
+.inv-th{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;border:1.5px solid var(--line2);background:#fff;cursor:zoom-in}
+.inv-th.new{border-color:var(--ink)}
+.inv-th img{width:100%;height:100%;object-fit:contain;background:#fff}
+.inv-th span{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:10.5px;font-weight:700;border-radius:5px;padding:1px 6px}
+.inv-th button{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:none;background:#fff;color:var(--red);font-size:17px;font-weight:700;line-height:1;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.inv-drop{display:flex;gap:12px;align-items:center;border:1.5px dashed var(--line2);border-radius:14px;padding:14px;cursor:pointer;background:var(--surface2);font-size:14px;line-height:1.35;outline:none}
+.inv-drop:hover,.inv-drop:focus,.inv-drop.over{border-color:var(--ink);background:#fff}
+.inv-drop small{display:block;color:var(--text3);font-size:12.5px;margin-top:2px}
+.inv-drop .inv-ic{font-size:26px}
+.inv-drop .key{display:inline-block;border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:12px;background:#fff}
+.inv-paste{margin-top:8px}
+#modal.ro .inv-drop,#modal.ro .inv-paste{display:none!important}
+@media (pointer:coarse){.inv-drop .key{display:none}}
+.wh-inv{display:flex;align-items:center;gap:6px;width:100%;margin:-2px 0 10px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.wh-inv:hover{background:var(--ink);color:#fff}
+.viewer.pages{display:block;overflow-y:auto;padding:0;cursor:default}
+.viewer.pages .pg-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(0,0,0,.85);color:#fff;font-size:14px}
+.viewer.pages .pg-bar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.viewer.pages .pg-bar span{color:#aaa;font-size:12.5px}
+.viewer.pages .pg-bar button{width:36px;height:36px;border-radius:50%;border:none;background:#fff;color:#000;font-size:22px;cursor:pointer}
+.viewer.pages .pg-list{display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 12px 40px}
+.viewer.pages img{max-width:min(100%,1100px);max-height:none;border-radius:6px;cursor:zoom-in}
+.viewer.pages img.zoom{max-width:none;width:200%;cursor:zoom-out}
 /* ПК: верхні панелі по центру */
 @media (min-width:1000px){
   body.board-on .stats-bar{justify-content:center}
@@ -1377,12 +1403,27 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
 
       <div class="form-sec">Товар і оплата</div>
       <div class="fg"><label for="fItems">Товар</label><textarea id="fItems" placeholder="Двері «Порто» 80 см — 2 шт&#10;Коробка, лиштва"></textarea></div>
+      <input type="hidden" id="fSize" value="m">
       <div class="fg-row">
-        <div class="fg"><label for="fSize">Габарит</label><select id="fSize"><option value="s">Малий (легковик)</option><option value="m">Середній</option><option value="l">Великий (бус)</option><option value="xl">Негабарит</option></select></div>
         <div class="fg"><label for="fPay">Оплата</label><select id="fPay" onchange="updateDue()"><option value="cash">Готівка при отриманні</option><option value="card">Термінал</option><option value="paid">Оплачено</option><option value="invoice">Безнал (рахунок)</option></select></div>
+        <div class="fg price-only"><label for="fAmount">Вартість товару, ₴</label><input type="number" id="fAmount" placeholder="0" min="0" inputmode="numeric" oninput="updateDue()"></div>
       </div>
-      <div class="fg price-only"><label for="fAmount">Вартість товару, ₴</label><input type="number" id="fAmount" placeholder="0" min="0" inputmode="numeric" oninput="updateDue()"></div>
 
+      <div class="sum-preview price-only" id="duePreview"></div>
+
+      <div class="form-sec">Видаткова накладна (1С)</div>
+      <div class="inv-box">
+        <div class="inv-list" id="invList"></div>
+        <div class="inv-drop edit-only" id="invDrop" tabindex="0" onclick="invPick()" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="invDropFiles(event)">
+          <div class="inv-ic">🧾</div>
+          <div><b>Вставте скрін видаткової: <span class="key">Ctrl</span>+<span class="key">V</span></b><small>або перетягніть сюди, виберіть файл чи сфотографуйте</small></div>
+        </div>
+        <button type="button" class="settings-btn edit-only inv-paste" onclick="invPasteBtn()">📋 Вставити з буфера</button>
+        <input type="file" id="invFile" accept="image/*" multiple hidden onchange="invFiles(this.files);this.value=''">
+        <div class="muted" id="invHint"></div>
+      </div>
+
+      <div id="fSvcSec" style="display:none">
       <div class="form-sec">Доставка і підйом</div>
       <div class="fg-row">
         <div class="fg price-only"><label for="fFee">Доставка, ₴</label><input type="number" id="fFee" min="0" placeholder="0" inputmode="numeric" oninput="updateDue()"></div>
@@ -1390,7 +1431,7 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
       </div>
       <div class="fg price-only"><label for="fLiftCost">Підйом, ₴</label><div class="fg-inline"><input type="number" id="fLiftCost" min="0" placeholder="0" inputmode="numeric" oninput="this.dataset.manual='1';updateDue()"><button type="button" class="settings-btn edit-only" onclick="autoLift(true)">Розрахувати</button></div><div class="muted" id="liftHint"></div></div>
       <label class="check-row price-only"><input type="checkbox" id="fSvcPaid" onchange="updateDue()"> Доставка й підйом уже оплачені</label>
-      <div class="sum-preview price-only" id="duePreview"></div>
+      </div>
 
       <div class="form-sec" id="fWhSec">Склад завантаження</div>
       <div class="oc-wh" id="fWhRo" style="display:none"></div>
@@ -1883,7 +1924,7 @@ function whCardHTML(o) {
     ${whMulti() && whOf(o) ? `<div class="wh-from">🏭 ${esc(whOf(o).name)}</div>` : ""}
     <div class="wh-client">${esc(o.client || "")}${o.addr ? " · " + esc(o.addr) : ""}</div>
     <div class="wh-items">${esc(o.items || "Товар не вказано")}</div>
-    ${o.size === "l" || o.size === "xl" ? `<div class="oc-tags" style="margin-bottom:8px"><div class="oc-tag dark">${SIZE[o.size]}</div></div>` : ""}
+    ${+o.inv ? `<button class="wh-inv" onclick="event.stopPropagation();showInvoice('${id}')">🧾 Видаткова накладна${+o.inv > 1 ? " · " + o.inv + " стор." : ""}</button>` : ""}
     ${o.notes ? `<div class="oc-notes">${esc(o.notes)}</div>` : ""}
     ${waiting ? `<div class="wh-acts" onclick="event.stopPropagation()">
       <button class="wh-btn ${o.picked ? "on" : ""}" onclick="togglePicked('${id}')">${o.picked ? "✓ Зібрано" : "Зібрати"}</button>
@@ -2123,6 +2164,7 @@ function openModal(id) {
   autoLift(); updateDue(); carHint();
   populateWh(id ? (orders.find(x => x.id === id) || {}).wh : "");
   renderModalPhotos(id || null);
+  invLoad(id || null);
   { // заявки: підказка, підпис дати, режим «лише перегляд» для менеджера після погодження
     const o = id ? orders.find(x => x.id === id) : null, plan = can("plan");
     const ro = !can("edit") || !!(o && !plan && !isReq(o));
@@ -2158,7 +2200,7 @@ function editOrder(id) { openModal(id); }
 
 function resetForm() {
   ["fClient","fPhone","fAddr","fItems","fNotes","fId","fAmount","fFloor","fSeq","fCollected","fProblem","fUnits","fLiftCost","fRetItems","fRetReason","fRetState"].forEach(id => document.getElementById(id).value = "");
-  document.getElementById("fFee").value = +tariff.fee || "";
+  document.getElementById("fFee").value = document.getElementById("fSvcSec").style.display === "none" ? "" : (+tariff.fee || "");
   document.getElementById("fSvcPaid").checked = false;
   document.getElementById("fLiftCost").dataset.manual = "";
   const t = new Date(), sel = new Date(currentYear, currentMonth, 1);
@@ -2243,6 +2285,7 @@ function readForm() {
     amount: +document.getElementById("fAmount").value || 0,
     driver: document.getElementById("fMaster").value,
     wh: document.getElementById("fWh").value || "",
+    inv: invCount(),
     seq: +document.getElementById("fSeq").value || 0,
     status: formStatus,
     collected: +document.getElementById("fCollected").value || 0,
@@ -2295,7 +2338,7 @@ function saveOrder() {
   }
   jumpToDate(entry.date);
   if(boardActive()) boardDate = entry.date;
-  saveData(); closeModal(); renderAll();
+  saveData(); invCommit(entry.id); closeModal(); renderAll();
 }
 function duplicateOrder() {
   document.getElementById("fId").value = "";
@@ -2304,6 +2347,7 @@ function duplicateOrder() {
   formStatus = document.getElementById("fMaster").value ? "assigned" : "new";
   renderStatusPick();
   document.getElementById("modalTitle").textContent = "Копія доставки";
+  invState = {id: null, existing: [], removed: new Set(), added: invState.existing.filter(([k]) => !invState.removed.has(k)).map(([,r]) => r.data).concat(invState.added)}; invRender();
   document.getElementById("auditBox").style.display = "none";
   document.getElementById("editBtns").style.display = "none";
   toast("Змініть дату чи дані та натисніть «Зберегти»","info",3000);
@@ -2836,10 +2880,10 @@ const firebaseConfig = {
   measurementId: "G-HY2KC3HQJT"
 };
 const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Магазин", driver:"Водій", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
-const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["wh","Склад"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
+const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["wh","Склад"],["inv","Накладна"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
   ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"],["agreedAt","Погоджено з клієнтом"],["agreedBy","Погодив"],["fee","Доставка"],["units","Одиниць підйому"],["liftCost","Підйом"],["svcPaid","Послуги оплачені"],
   ["retItems","Не доставлено"],["retReason","Причина повернення"],["retState","Стан повернення"],["photos","Фото"],["signed","Підпис"],["signer","Отримувач"],["signedAt","Час підпису"],["notifiedAt","Клієнта повідомлено"],["eta","Орієнтовний час"],["remindedAt","Нагадування"],["picked","Зібрано"],["pickedBy","Зібрав"],["pickedAt","Час збирання"]];
-const BOOL_FIELDS = ["lifting","urgent","svcPaid","signed","picked"], NUM_FIELDS = ["signedAt","agreedAt","amount","seq","collected","deliveredAt","fee","units","liftCost","photos","notifiedAt","remindedAt","pickedAt"];
+const BOOL_FIELDS = ["lifting","urgent","svcPaid","signed","picked"], NUM_FIELDS = ["inv","signedAt","agreedAt","amount","seq","collected","deliveredAt","fee","units","liftCost","photos","notifiedAt","remindedAt","pickedAt"];
 const WH_FIELDS = ["picked","pickedAt","pickedBy","status","retState"];
 const DRIVER_FIELDS = ["status","collected","problem","notes","deliveredAt","retItems","retReason","retState","photos","signed","signer","signedAt","notifiedAt","eta","remindedAt"];
 
@@ -4064,6 +4108,7 @@ function bdCardHTML(o) {
   if(o.notifiedAt) tags.push(`<span class="oc-tag" title="Клієнта повідомлено">💬 ${esc(o.eta || timeHM(o.notifiedAt))}</span>`);
   if(+o.photos || o.signed) tags.push(`<span class="oc-tag">${+o.photos ? "📷" : ""}${o.signed ? "✍" : ""}</span>`);
   if(o.pay === "paid" || o.pay === "invoice") tags.push(`<span class="oc-tag paid">${PAY[o.pay]}</span>`);
+  if(+o.inv) tags.push(`<span class="oc-tag" title="Є видаткова накладна">🧾 накладна</span>`);
   if(whMulti() && !isReq(o) && whOf(o)) tags.unshift(`<span class="oc-tag" title="${esc(whOf(o).addr)}">🏭 ${esc(whOf(o).name)}</span>`);
   const sum = can("totals") && due(o) > 0 ? `<span class="bd-sum">${fmt(due(o))} ₴</span>` : "";
   return `<div class="bd-card ${isReq(o) ? "req" : ""} ${st === "problem" ? "problem" : ""} ${isDone(o) ? "done" : ""} ${st === "cancelled" ? "cancelled" : ""}" data-id="${id}" draggable="${drag}"
@@ -4165,7 +4210,8 @@ function calcLiftFromForm() { return calcLift(gv("fFloor"), gv("fLift"), gv("fUn
 function autoLift(force) {
   const el = document.getElementById("fLiftCost");
   if(force) el.dataset.manual = "";
-  if(el.dataset.manual !== "1" && can("totals")) { const v = calcLiftFromForm(); el.value = v || ""; }
+  const svcOn = document.getElementById("fSvcSec").style.display !== "none";
+  if(svcOn && el.dataset.manual !== "1" && can("totals")) { const v = calcLiftFromForm(); el.value = v || ""; }
   const hint = document.getElementById("liftHint");
   hint.textContent = (+tariff.floor || +tariff.lift)
     ? `Тариф за одиницю: ${fmt(tariff.floor)} ₴ за поверх без ліфта, ${fmt(tariff.lift)} ₴ з ліфтом${tariff.firstFree === false ? "" : ", 1-й поверх без доплати"}`
@@ -4437,12 +4483,108 @@ async function loadPhotos(orderId) {
     return Object.values(v).filter(r => r && safeImg(r.data)).sort((a,b) => (a.ts||0) - (b.ts||0));
   } catch(e) { return []; }
 }
+// ═══════════════ ВИДАТКОВА НАКЛАДНА (скрін з 1С) ═══════════════
+let invState = {id: null, existing: [], removed: new Set(), added: []};
+const INV_MAX = 6;
+async function loadPhotoRecs(orderId) {
+  const k = fbKey(orderId);
+  if(!fbDb) return (demoPhotos[k] || []).map((r, i) => [r.pid || (r.pid = "d" + i + "_" + (r.ts || 0)), r]);
+  try { const v = (await fbDb.ref("app/photos/" + k).once("value")).val() || {}; return Object.entries(v).filter(([, r]) => r && safeImg(r.data)).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0)); }
+  catch(e) { return []; }
+}
+function invCount() { return invState.existing.filter(([k]) => !invState.removed.has(k)).length + invState.added.length; }
+async function invLoad(id) {
+  invState = {id, existing: [], removed: new Set(), added: []};
+  invRender(id ? "Завантажую накладну…" : "");
+  if(!id) return;
+  const o = orders.find(x => x.id === id);
+  if(!o || !+o.inv) { invRender(); return; }
+  const recs = (await loadPhotoRecs(id)).filter(([, r]) => r.kind === "invoice");
+  if(gv("fId") !== id || invState.id !== id) return;
+  invState.existing = recs; invRender();
+}
+function invRender(msg) {
+  const box = document.getElementById("invList"); if(!box) return;
+  const edit = can("edit") && !document.getElementById("modal").classList.contains("ro");
+  const items = invState.existing.filter(([k]) => !invState.removed.has(k)).map(([k, r]) => ({src: r.data, del: `invDel('${k}')`}))
+    .concat(invState.added.map((d, i) => ({src: d, del: `invDelNew(${i})`, isNew: true})));
+  box.innerHTML = items.map((it, i) => `<div class="inv-th ${it.isNew ? "new" : ""}" onclick="invView(${i})"><img src="${safeImg(it.src)}" alt="Видаткова накладна, сторінка ${i + 1}"><span>${it.isNew ? "нова" : "стор. " + (i + 1)}</span>${edit ? `<button type="button" onclick="event.stopPropagation();${it.del}" aria-label="Прибрати">×</button>` : ""}</div>`).join("");
+  document.getElementById("invHint").textContent = msg || (!items.length && !edit ? "Накладну не додано" : "");
+  document.getElementById("invDrop").style.display = edit && items.length < INV_MAX ? "" : "none";
+  document.querySelector(".inv-paste").style.display = edit && items.length < INV_MAX && navigator.clipboard && navigator.clipboard.read ? "" : "none";
+}
+function invImages() { return invState.existing.filter(([k]) => !invState.removed.has(k)).map(([, r]) => r.data).concat(invState.added); }
+function invView(i) { openImages(invImages(), i, "Видаткова накладна"); }
+function invDel(k) { invState.removed.add(k); invRender(); }
+function invDelNew(i) { invState.added.splice(i, 1); invRender(); }
+function invPick() { document.getElementById("invFile").click(); }
+function invDropFiles(e) { e.preventDefault(); e.currentTarget.classList.remove("over"); invFiles(e.dataTransfer.files); }
+async function invFiles(files) {
+  const imgs = [...(files || [])].filter(f => /^image\//.test(f.type));
+  if(!imgs.length) { toast("Потрібне зображення: скрін або фото накладної", "warn"); return; }
+  invRender("Обробляю зображення…");
+  for(const f of imgs) {
+    if(invCount() >= INV_MAX) { toast(`Не більше ${INV_MAX} сторінок`, "warn"); break; }
+    try { invState.added.push(await compressImage(f, 2000, 0.85)); } catch(e) { toast("Не вдалося прочитати зображення", "err"); }
+  }
+  invRender(); toast("Накладну додано. Натисніть «Зберегти»", "ok", 2500);
+}
+async function invPasteBtn() {
+  try {
+    const items = await navigator.clipboard.read(), files = [];
+    for(const it of items) { const t = it.types.find(x => x.startsWith("image/")); if(t) files.push(new File([await it.getType(t)], "invoice.png", {type: t})); }
+    if(files.length) invFiles(files); else toast("У буфері немає зображення. Скопіюйте скрін накладної", "warn", 3500);
+  } catch(e) { toast("Браузер не дав доступ до буфера. Натисніть на поле і Ctrl+V", "warn", 4000); }
+}
+document.addEventListener("paste", e => {
+  const m = document.getElementById("modal");
+  if(!m || !m.classList.contains("on") || m.classList.contains("ro") || !can("edit")) return;
+  const files = [...(e.clipboardData ? e.clipboardData.items : [])].filter(i => i.kind === "file" && i.type.startsWith("image/")).map(i => i.getAsFile()).filter(Boolean);
+  if(!files.length) return;
+  e.preventDefault(); invFiles(files);
+  document.getElementById("invList").scrollIntoView({behavior: "smooth", block: "center"});
+});
+async function invCommit(id) {
+  const st = invState, rm = [...st.removed], add = st.added.slice();
+  if(!rm.length && !add.length) return;
+  invState = {id: null, existing: [], removed: new Set(), added: []};
+  const k = fbKey(id);
+  if(!fbDb) {
+    demoPhotos[k] = (demoPhotos[k] || []).filter(r => !rm.includes(r.pid));
+    if(add.length) storePhotos(id, add.map(d => ({kind: "invoice", data: d})));
+    return;
+  }
+  // нова доставка: чекаємо, поки вона з'явиться в базі (права магазину перевіряються по ній)
+  for(let i = 0; i < 24 && !cloudOrders[k]; i++) await new Promise(r => setTimeout(r, 500));
+  try {
+    const up = {}, now = Date.now();
+    rm.forEach(pk => { up[`app/photos/${k}/${pk}`] = null; });
+    add.forEach((d, i) => { up[`app/photos/${k}/${fbDb.ref().push().key}`] = {kind: "invoice", data: d, ts: now + i, by: myName()}; });
+    await fbDb.ref().update(up);
+  } catch(e) { toast("Накладна не збереглася: " + e.message, "err", 6000); }
+}
+async function showInvoice(id) {
+  toast("Відкриваю накладну…", "info", 1200);
+  const imgs = (await loadPhotoRecs(id)).filter(([, r]) => r.kind === "invoice").map(([, r]) => r.data);
+  if(!imgs.length) { toast("Накладну ще не завантажено", "warn"); return; }
+  const o = orders.find(x => x.id === id) || {};
+  openImages(imgs, 0, `Видаткова · №${o.num || "—"} · ${o.client || ""}`);
+}
+// перегляд кількох сторінок: гортаються вниз, дотик по фону закриває
+function openImages(list, start, title) {
+  const v = document.createElement("div"); v.className = "viewer pages";
+  v.innerHTML = `<div class="pg-bar"><b>${esc(title || "")}</b><span>${list.length > 1 ? list.length + " стор." : ""}</span><button aria-label="Закрити">×</button></div>
+    <div class="pg-list">${list.map((d, i) => `<img src="${safeImg(d)}" alt="Сторінка ${i + 1}" id="pgimg${i}" onclick="event.stopPropagation();this.classList.toggle('zoom')">`).join("")}</div>`;
+  v.onclick = e => { if(e.target === v || e.target.closest(".pg-bar button")) v.remove(); };
+  document.body.appendChild(v);
+  const el = document.getElementById("pgimg" + (start || 0)); if(el && start) el.scrollIntoView({block: "start"});
+}
 async function renderModalPhotos(id) {
   const box = document.getElementById("fPhotos"), hd = document.getElementById("fPhotosHd");
   if(!id) { box.innerHTML = ""; box.style.display = hd.style.display = "none"; return; }
   box.style.display = hd.style.display = "";
   box.innerHTML = `<div class="muted">Завантажую фото…</div>`;
-  const list = await loadPhotos(id);
+  const list = (await loadPhotos(id)).filter(p => p.kind !== "invoice");
   if(gv("fId") !== id) return;
   modalPhotoCache = list;
   const tiles = list.map((p,i) => `<div class="ph ${p.kind === "sign" || p.kind === "act" ? "sign" : ""} ${p.kind === "act" ? "act" : ""}" onclick="viewPhoto(${i})"><img src="${safeImg(p.data)}" alt="${p.kind === "act" ? "Акт отримання" : p.kind === "sign" ? "Підпис клієнта" : "Фото доставки"}"><span>${p.kind === "act" ? "акт" : p.kind === "sign" ? "підпис" : timeHM(p.ts)}</span></div>`).join("");
