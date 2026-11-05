@@ -480,7 +480,7 @@ body:not(.role-driver) .drv-only{display:none!important}
 .role-pill.admin{background:var(--ink);color:#fff}
 .role-pill.user{background:var(--surface3);color:var(--ink)}
 .role-pill.manager{background:var(--surface2);color:var(--ink);border:1px solid var(--line2)}
-.role-pill.driver{background:var(--green-soft);color:var(--green)}
+.role-pill.driver,.role-pill.driverph{background:var(--green-soft);color:var(--green)}
 .role-pill.viewer{background:var(--surface2);color:var(--text2)}
 .role-pill.warehouse{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
 .role-pill.pending{background:var(--red-soft);color:var(--red)}
@@ -872,6 +872,22 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
 @media (pointer:coarse){.inv-drop .key{display:none}}
 .wh-inv{display:flex;align-items:center;gap:6px;width:100%;margin:-2px 0 10px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
 .wh-inv:hover{background:var(--ink);color:#fff}
+.zv{position:fixed;inset:0;z-index:900;background:#0b0b0d;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
+.zv-bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;color:#fff;font-size:14px}
+.zv-bar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zv-n{color:#a1a1aa;font-size:13px;font-weight:700}
+.zv-x{width:40px;height:40px;border-radius:50%;border:none;background:#fff;color:#000;font-size:24px;line-height:1;cursor:pointer}
+.zv-stage{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab}
+.zv-stage:active{cursor:grabbing}
+.zv-img{max-width:100%;max-height:100%;transform-origin:center center;background:#fff;will-change:transform;pointer-events:none}
+.zv-ctl{display:flex;justify-content:center;gap:10px;padding:10px 14px calc(env(safe-area-inset-bottom) + 14px)}
+.zv-ctl button{min-width:48px;height:48px;border-radius:24px;border:1px solid #3a3a42;background:#1d1d21;color:#fff;font-size:22px;font-weight:700;cursor:pointer;padding:0 14px}
+.zv-ctl .zv-pct{font-size:13.5px;min-width:72px}
+.act-inv{margin:-2px 0 12px}
+.act-inv small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.act-inv-pg{position:relative;display:block;width:100%;padding:0;margin:0 0 8px;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff;cursor:zoom-in}
+.act-inv-pg img{display:block;width:100%}
+.act-inv-pg span{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.78);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:4px 9px}
 .viewer.pages{display:block;overflow-y:auto;padding:0;cursor:default}
 .viewer.pages .pg-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(0,0,0,.85);color:#fff;font-size:14px}
 .viewer.pages .pg-bar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1332,6 +1348,7 @@ body:not(.role-admin):not(.role-user) .plan-only{display:none!important}
           <option value="user">Логіст</option>
           <option value="manager">Магазин</option>
           <option value="driver">Водій</option>
+          <option value="driverph">Водій з номером</option>
           <option value="warehouse">Склад</option>
           <option value="viewer">Лише перегляд</option>
         </select>
@@ -1617,7 +1634,10 @@ function isCash(o)   { return dueMethod(o) === "cash" && due(o) > 0; }
 function isCard(o)   { return dueMethod(o) === "card" && due(o) > 0; }
 function driverNames() { return masters.map(m => m.name); }
 function driverInfo(name) { return masters.find(m => m.name === name) || null; }
-function myDriver() { return me && me.role === "driver" ? (me.driver || "") : null; }
+// «Водій з номером» (driverph) — той самий водій, але бачить телефони клієнтів своїх доставок
+function isDrvRole(r) { return r === "driver" || r === "driverph"; }
+function isDrvPh() { return !!(me && me.role === "driverph"); }
+function myDriver() { return me && isDrvRole(me.role) ? (me.driver || "") : null; }
 function isWarehouse() { return !!(me && me.role === "warehouse"); }
 function isStore() { return !!(me && me.role === "manager"); }
 // магазин бачить лише ті заявки й доставки, які створив сам
@@ -2879,7 +2899,7 @@ const firebaseConfig = {
   appId: "1:751957678408:web:5d2b2faf507d16691a7b7d",
   measurementId: "G-HY2KC3HQJT"
 };
-const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Магазин", driver:"Водій", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
+const ROLES = { admin:"Адміністратор", user:"Логіст", manager:"Магазин", driver:"Водій", driverph:"Водій з номером", warehouse:"Склад", viewer:"Лише перегляд", pending:"Очікує підтвердження", blocked:"Заблоковано" };
 const ORDER_FIELDS = [["date","Дата"],["time","З"],["timeTo","До"],["num","№"],["client","Клієнт"],["phone","Телефон"],["addr","Адреса"],["wh","Склад"],["inv","Накладна"],["floor","Поверх"],["lift","Ліфт"],["lifting","Підйом"],["urgent","Терміново"],
   ["items","Товар"],["size","Габарит"],["pay","Оплата"],["amount","Сума"],["driver","Водій"],["seq","Черга"],["status","Статус"],["collected","Отримано"],["problem","Проблема"],["notes","Нотатки"],["deliveredAt","Час доставки"],["agreedAt","Погоджено з клієнтом"],["agreedBy","Погодив"],["fee","Доставка"],["units","Одиниць підйому"],["liftCost","Підйом"],["svcPaid","Послуги оплачені"],
   ["retItems","Не доставлено"],["retReason","Причина повернення"],["retState","Стан повернення"],["photos","Фото"],["signed","Підпис"],["signer","Отримувач"],["signedAt","Час підпису"],["notifiedAt","Клієнта повідомлено"],["eta","Орієнтовний час"],["remindedAt","Нагадування"],["picked","Зібрано"],["pickedBy","Зібрав"],["pickedAt","Час збирання"]];
@@ -2899,11 +2919,11 @@ const splashStart = Date.now();
 
 function can(p) {
   const r = me && me.role;
-  if(p === "view")   return ["admin","user","manager","driver","warehouse","viewer"].includes(r);
+  if(p === "view")   return ["admin","user","manager","driver","driverph","warehouse","viewer"].includes(r);
   if(p === "edit")   return ["admin","user","manager"].includes(r);
-  if(p === "status") return ["admin","user","manager","driver"].includes(r);
+  if(p === "status") return ["admin","user","manager","driver","driverph"].includes(r);
   if(p === "stock")  return ["admin","user","manager","warehouse"].includes(r);
-  if(p === "phone")  return ["admin","user","manager","viewer"].includes(r);   // водій і склад номерів клієнтів не отримують
+  if(p === "phone")  return ["admin","user","manager","viewer","driverph"].includes(r);   // звичайний водій і склад номерів клієнтів не отримують; «водій з номером» — лише своїх доставок
   if(p === "totals") return r === "admin" || r === "user";
   if(p === "roles")  return r === "admin" || r === "user";
   if(p === "plan")   return r === "admin" || r === "user";   // погодити час, призначити водія, розподіл
@@ -3017,12 +3037,12 @@ function onRoleChanged(prevRole, prevDrv) {
     setTimeout(() => openProfile(true), 1300);
   }
   if(prevRole && prevRole !== me.role) toast("Вашу роль змінено: " + ROLES[me.role], "info", 4000);
-  if(prevRole === "driver" && me.role === "driver" && prevDrv !== me.driver && me.driver) toast("Вас прив'язано до водія: " + me.driver, "info", 4000);
+  if(isDrvRole(prevRole) && isDrvRole(me.role) && prevDrv !== me.driver && me.driver) toast("Вас прив'язано до водія: " + me.driver, "info", 4000);
   if(!loginLogged) {
     loginLogged = true;
     writeLog([{action:"login", text:"Увійшов у програму"}]);
   }
-  if(dataStarted && dataRole !== me.role) stopData();
+  if(dataStarted && (dataRole !== me.role || (isDrvPh() && prevDrv !== undefined && prevDrv !== me.driver))) stopData();
   startData();
   if(can("roles")) startAdmin(); else stopAdmin();
   geoSync(); pushSync();
@@ -3032,8 +3052,9 @@ function onRoleChanged(prevRole, prevDrv) {
 
 function applyRoleUI() {
   const b = document.body;
-  b.classList.remove("role-admin","role-user","role-manager","role-driver","role-warehouse","role-viewer");
+  b.classList.remove("role-admin","role-user","role-manager","role-driver","role-driverph","role-warehouse","role-viewer");
   if(me && can("view")) b.classList.add("role-" + me.role);
+  if(isDrvPh()) b.classList.add("role-driver");
   if(!can("roles")) goSub && goSub("set", true);
 }
 
@@ -3044,7 +3065,7 @@ function onSignedOut() {
   try { localStorage.removeItem("ld_me"); } catch(e) {}
   userRef = null; currentUid = null; me = null; loginLogged = false;
   orders = []; cloudOrders = {}; cloudMeta = null;
-  document.body.classList.remove("role-admin","role-user","role-manager","role-driver","role-warehouse","role-viewer");
+  document.body.classList.remove("role-admin","role-user","role-manager","role-driver","role-driverph","role-warehouse","role-viewer");
   cloudContacts = {};
   document.getElementById("connBadge").style.display = "none";
   document.getElementById("hdrUser").style.display = "none";
@@ -3063,6 +3084,7 @@ function startData() {
   oref.on("value", snap => {
     const val = snap.val() || {};
     if(isStore()) watchStoreContacts(Object.keys(val), refs);
+    else if(isDrvPh() && me.driver) watchStoreContacts(Object.keys(val).filter(k => val[k] && val[k].driver === me.driver), refs);
     if(!firstOrders) notifyChanges(val);
     firstOrders = false;
     cloudOrders = JSON.parse(JSON.stringify(val));
@@ -3071,7 +3093,7 @@ function startData() {
   refs.push(oref);
   const sref = fbDb.ref("app/seq");
   if(can("edit")) { sref.on("value", s => { globalSeq = +s.val() || 0; }, err => console.warn("app/seq", err)); refs.push(sref); }
-  if(can("phone") && !isStore()) {
+  if(can("phone") && !isStore() && !isDrvPh()) {
     const pref = fbDb.ref("app/contacts");
     pref.on("value", snap => { cloudContacts = JSON.parse(JSON.stringify(snap.val() || {})); contactsLoaded = true; rebuildOrders(); },
       err => { console.warn("app/contacts", err); contactsLoaded = false; if(can("edit") && !window.__rulesWarned) { window.__rulesWarned = true; toast("Оновіть правила бази у Firebase (database.rules.json), щоб сховати телефони клієнтів від водіїв", "warn", 8000); } });
@@ -3084,7 +3106,7 @@ function startData() {
     renderSchedule();
   }, err => { console.warn("app/daysoff", err); daysOffDenied = true; });
   refs.push(dref);
-  if(can("totals") || me.role === "driver" || me.role === "manager") {
+  if(can("totals") || isDrvRole(me.role) || me.role === "manager") {
     const cref = fbDb.ref("app/cash");
     cref.on("value", snap => { cashData = snap.val() || {}; if(document.getElementById("tab-cash").classList.contains("on")) renderCash(); }, err => console.warn("app/cash", err));
     refs.push(cref);
@@ -3147,7 +3169,7 @@ function notifyChanges(next) {
         toast(`Призначено водія ${n.driver}: ${n.client || ""}`, "info", 4000); playSound("info");
       }
     }
-    if(me.role === "driver" && me.driver) {
+    if(isDrvRole(me.role) && me.driver) {
       const mineN = n.driver === me.driver && !isReq(n), mineP = !!p && p.driver === me.driver && !isReq(p);
       if(mineN && !mineP && isActive(n) && !isDone(n)) {
         toast(`Нова доставка: ${n.addr || n.client}`, "info", 5000); playSound("assigned");
@@ -3174,7 +3196,8 @@ function watchStoreContacts(keys, refs) {
     if(storeContactRefs[k]) return;
     const r = fbDb.ref("app/contacts/" + k);
     storeContactRefs[k] = r;
-    r.on("value", s => { if(s.val()) cloudContacts[k] = s.val(); else delete cloudContacts[k]; rebuildOrders(); }, err => console.warn("contact", k, err));
+    r.on("value", s => { if(s.val()) cloudContacts[k] = s.val(); else delete cloudContacts[k]; rebuildOrders(); },
+      err => { delete storeContactRefs[k]; delete cloudContacts[k]; rebuildOrders(); console.warn("contact", k, err); });
     refs.push(r);
   });
 }
@@ -3252,7 +3275,7 @@ function normVal(f, v) {
 function diffFields(prev, cur) {
   const ch = [];
   ORDER_FIELDS.forEach(([f, label]) => {
-    if(!can("totals") && ["amount","collected","fee","liftCost","svcPaid"].includes(f) && me.role !== "driver") return;
+    if(!can("totals") && ["amount","collected","fee","liftCost","svcPaid"].includes(f) && !isDrvRole(me.role)) return;
     const a = normVal(f, prev[f]), b = normVal(f, cur[f]);
     if(a !== b) ch.push({f, label, from: a, to: b});
   });
@@ -3490,10 +3513,10 @@ function stopAdmin() {
 function setUserRole(uid, role) {
   if(!fbDb) { // демо: перемикаємо свою роль локально
     me.role = role;
-    if(role === "driver") me.driver = me.driver || (masters[0] && masters[0].name) || "";
+    if(isDrvRole(role)) me.driver = me.driver || (masters[0] && masters[0].name) || "";
     if(role === "warehouse") { me.firstName = "Демо"; me.lastName = "Склад"; me.wh = ""; } else if(me.lastName === "Склад") { me.lastName = "Логіст"; }
     applyRoleUI(); renderHeaderUser(); renderProfileSheet(); renderAll();
-    toast("Роль: " + ROLES[role] + (role === "driver" && me.driver ? " · " + me.driver : ""), "info");
+    toast("Роль: " + ROLES[role] + (isDrvRole(role) && me.driver ? " · " + me.driver : ""), "info");
     return;
   }
   const u = usersCache[uid] || (uid === me.uid ? me : null);
@@ -3506,7 +3529,7 @@ function setUserRole(uid, role) {
     if(!confirm(`Змінити свою роль на «${ROLES[role]}»?\n\nВи втратите поточні права, і повернути їх зможе адміністратор.`)) { renderUsers(); renderProfileSheet(); return; }
   }
   const up = {[`app/users/${uid}/role`]: role, [`app/users/${uid}/roleChangedAt`]: Date.now(), [`app/users/${uid}/roleChangedBy`]: myName()};
-  if(role === "driver" && !u.driver) {
+  if(isDrvRole(role) && !u.driver) {
     const guess = masters.find(m => fullName(u) && (m.name === fullName(u) || m.name.startsWith(u.firstName || "@@")));
     if(guess) up[`app/users/${uid}/driver`] = guess.name;
   }
@@ -3658,7 +3681,7 @@ function deleteUser(uid) {
   const nm = fullName(u) || u.email || "користувача";
   if(!confirm(`Видалити «${nm}»${u.email ? " (" + u.email + ")" : ""}?\n\nЛюдина втратить доступ до програми, а її доставки, акти й записи журналу залишаться.`)) return;
   const up = {[`app/users/${uid}`]: null};
-  if(u.role === "driver" && u.driver) up[`app/locations/${fbKey(u.driver)}`] = null;
+  if(isDrvRole(u.role) && u.driver) up[`app/locations/${fbKey(u.driver)}`] = null;
   writeLog([{action: "admin", text: `Видалив користувача «${nm}»${u.email ? " · " + u.email : ""} (${ROLES[u.role] || u.role})`}], up);
   fbDb.ref().update(up).then(() => toast(`${nm}: видалено`, "ok")).catch(err => { toast("Не вдалося: " + err.message, "err"); renderUsers(); });
 }
@@ -3835,7 +3858,7 @@ function renderProfile() {
   document.getElementById("acctEmail").textContent = me.email || "—";
   const rp = document.getElementById("meRole");
   const ow = myWh() ? whList().find(w => w.id === myWh()) : null;
-  rp.textContent = (ROLES[me.role] || me.role) + (me.role === "driver" && me.driver ? " · " + me.driver : "") + (ow ? " · " + ow.name : ""); rp.className = "role-pill " + me.role;
+  rp.textContent = (ROLES[me.role] || me.role) + (isDrvRole(me.role) && me.driver ? " · " + me.driver : "") + (ow ? " · " + ow.name : ""); rp.className = "role-pill " + me.role;
 }
 function renderHeaderUser() {
   if(!me) return;
@@ -3870,7 +3893,7 @@ function renderProfileSheet() {
   document.getElementById("profEmail").textContent = me.email || "";
   const rp = document.getElementById("profRole");
   rp.textContent = ROLES[me.role] || me.role; rp.className = "role-pill " + me.role;
-  document.getElementById("profDriver").textContent = me.role === "driver" ? (me.driver ? "Ваші доставки: " + me.driver : "Ще не прив'язано до водія") : "";
+  document.getElementById("profDriver").textContent = isDrvRole(me.role) ? (me.driver ? "Ваші доставки: " + me.driver : "Ще не прив'язано до водія") : "";
   document.getElementById("sndOn").checked = soundOn();
   renderPushState(); renderLocPill();
   const showRole = DEMO || can("admin");
@@ -3920,18 +3943,18 @@ function renderUsers() {
     const self = uid === me.uid;
     const seen = Math.max(u.lastSeen||0, last[uid]||0);
     const lockAdmin = !can("admin") && u.role === "admin";
-    const opts = ["admin","user","manager","driver","warehouse","viewer","pending","blocked"]
-      .filter(r => (!self || ["admin","user","manager","driver","warehouse","viewer"].includes(r)) && (can("admin") || r !== "admin"))
+    const opts = ["admin","user","manager","driver","driverph","warehouse","viewer","pending","blocked"]
+      .filter(r => (!self || ["admin","user","manager","driver","driverph","warehouse","viewer"].includes(r)) && (can("admin") || r !== "admin"))
       .map(r => `<option value="${r}" ${u.role===r?"selected":""}>${ROLES[r]}</option>`).join("");
     const whSel = u.role === "warehouse" && whList().length ? `<select class="inp" onchange="setUserWh('${uid}', this.value)"><option value="">— усі склади —</option>${whList().map(w => `<option value="${esc(w.id)}" ${u.wh===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select>` : "";
-    const drvSel = whSel + (u.role === "driver" ? `<select class="inp" onchange="setUserDriver('${uid}', this.value)"><option value="">— оберіть водія —</option>${masters.map(m => `<option value="${esc(m.name)}" ${u.driver===m.name?"selected":""}>${esc(m.name)}</option>`).join("")}</select>` : "");
+    const drvSel = whSel + (isDrvRole(u.role) ? `<select class="inp" onchange="setUserDriver('${uid}', this.value)"><option value="">— оберіть водія —</option>${masters.map(m => `<option value="${esc(m.name)}" ${u.driver===m.name?"selected":""}>${esc(m.name)}</option>`).join("")}</select>` : "");
     const uwh = u.role === "warehouse" ? whList().find(w => w.id === u.wh) : null;
     return `<div class="user-row ${u.role==="pending"?"pending":""}">
       <div class="user-top">
         <div class="avatar">${esc(initials(fullName(u) || u.email))}</div>
         <div style="flex:1;min-width:0">
           <div class="user-name">${esc(fullName(u) || "Без імені")}${self ? ' <span class="muted">(ви)</span>' : ""}</div>
-          <div class="user-email">${esc(u.email||"")}${u.role === "driver" ? ` · <b style="color:${u.driver ? "var(--green)" : "var(--red)"}">${esc(u.driver || "не прив'язано")}</b>` : ""}${u.role === "warehouse" && whMulti() ? ` · <b>${uwh ? esc(uwh.name) : "усі склади"}</b>` : ""}</div>
+          <div class="user-email">${esc(u.email||"")}${isDrvRole(u.role) ? ` · <b style="color:${u.driver ? "var(--green)" : "var(--red)"}">${esc(u.driver || "не прив'язано")}</b>` : ""}${u.role === "warehouse" && whMulti() ? ` · <b>${uwh ? esc(uwh.name) : "усі склади"}</b>` : ""}</div>
         </div>
         <span class="role-pill ${u.role}">${ROLES[u.role]||u.role}</span>
       </div>
@@ -3940,7 +3963,7 @@ function renderUsers() {
         ${can("admin") ? `<button class="link-btn" onclick="showUserLog('${uid}')">Що робив(ла) →</button>` : ""}
       </div>
       <div class="user-actions">
-        ${u.role === "pending" ? `<button class="btn-approve dark" onclick="setUserRole('${uid}','manager')">✓ Магазин</button><button class="btn-approve dark" onclick="setUserRole('${uid}','user')">✓ Логіст</button><button class="btn-approve" onclick="setUserRole('${uid}','driver')">✓ Водій</button><button class="btn-approve dark" onclick="setUserRole('${uid}','warehouse')">✓ Склад</button>` : ""}
+        ${u.role === "pending" ? `<button class="btn-approve dark" onclick="setUserRole('${uid}','manager')">✓ Магазин</button><button class="btn-approve dark" onclick="setUserRole('${uid}','user')">✓ Логіст</button><button class="btn-approve" onclick="setUserRole('${uid}','driver')">✓ Водій</button><button class="btn-approve" onclick="setUserRole('${uid}','driverph')" title="Бачить телефони клієнтів своїх доставок">✓ Водій з номером</button><button class="btn-approve dark" onclick="setUserRole('${uid}','warehouse')">✓ Склад</button>` : ""}
         ${lockAdmin ? `<span class="muted">Змінює лише адміністратор</span>` : `<select class="inp" onchange="setUserRole('${uid}', this.value)">${opts}</select>`}
         ${drvSel}
         ${can("admin") && !self ? `<button class="btn-del" onclick="deleteUser('${uid}')" title="Видалити користувача">🗑 Видалити</button>` : ""}
@@ -4294,6 +4317,7 @@ function openDeliver(id) {
       <div class="act-hd"><b>АКТ ОТРИМАННЯ ТОВАРУ</b><span>до замовлення № ${esc(o.num || "—")}</span></div>
       <div class="act-meta" id="actMeta"></div>
       <div class="act-items"><small>Товар</small><div id="actItems"></div></div>
+      <div class="act-inv" id="actInv" style="display:none"></div>
       <p class="act-text" id="actText"></p>
       <div class="fg" style="margin-bottom:10px"><label for="dSigner">Отримувач (ПІБ)</label><input type="text" id="dSigner" value="${esc(o.client || "")}" oninput="actPreview()" autocomplete="off"></div>
       <label class="act-lbl">Підпис отримувача${opts.requireSign ? " *" : ""}</label>
@@ -4303,6 +4327,14 @@ function openDeliver(id) {
     <button class="btn-save green" id="dOk" onclick="confirmDeliver('${esc(id)}')">Підтвердити доставку</button>`;
   openAct();
   renderDlvPhotos(); actPreview();
+  if(+o.inv) loadPhotoRecs(id).then(recs => {
+    if(!dlv || dlv.id !== id) return;
+    dlv.inv = recs.filter(([, r]) => r.kind === "invoice").map(([, r]) => r.data);
+    const box = document.getElementById("actInv"); if(!box || !dlv.inv.length) return;
+    box.style.display = "";
+    box.innerHTML = `<small>Видаткова накладна${dlv.inv.length > 1 ? " · " + dlv.inv.length + " стор." : ""} · додається до акту</small>` +
+      dlv.inv.map((d, i) => `<button type="button" class="act-inv-pg" onclick="openImages(dlv.inv, ${i}, 'Видаткова накладна')"><img src="${safeImg(d)}" alt="Видаткова накладна, сторінка ${i + 1}"><span>🔍 Збільшити</span></button>`).join("");
+  });
   dlv.tick = setInterval(() => { if(!document.getElementById("actMeta")) { clearInterval(dlv && dlv.tick); return; } actPreview(true); }, 20000);
   setTimeout(initSignPad, 330);
 }
@@ -4366,7 +4398,8 @@ function actData(o) {
     text: base.replace(/\{номер\}/g, o.num || "—").replace(/\{клієнт\}/g, o.client || ""),
     paid: s && +s.value ? `${fmt(+s.value)} ₴ ${dueMethod(o) === "card" ? "(термінал)" : "(готівка)"}` : (o.pay === "paid" ? "оплачено заздалегідь" : o.pay === "invoice" ? "безготівковий розрахунок" : ""),
     signer: ((document.getElementById("dSigner") || {}).value || "").trim() || o.client || "",
-    driver: o.driver || myName(), car: (driverInfo(o.driver) || {}).car || ""
+    driver: o.driver || myName(), car: (driverInfo(o.driver) || {}).car || "",
+    inv: (dlv && dlv.inv) || []
   };
 }
 function actPreview(onlyTime) {
@@ -4378,45 +4411,53 @@ function actPreview(onlyTime) {
   document.getElementById("actText").textContent = a.text;
 }
 // малюємо акт з підписом у зображення: його бачать логіст і адміністратор, можна завантажити й роздрукувати
-function actImage(a, signUrl) {
-  return new Promise(res => {
-    const W = 1000, P = 64, c = document.createElement("canvas"), x = c.getContext("2d");
-    const F = "Roboto, 'Helvetica Neue', Arial, sans-serif";
-    const wrap = (txt, font, maxW) => { x.font = font; const out = []; String(txt).split("\n").forEach(par => { let line = ""; par.split(/\s+/).forEach(w => { const t2 = line ? line + " " + w : w; if(x.measureText(t2).width > maxW && line) { out.push(line); line = w; } else line = t2; }); out.push(line); }); return out; };
-    const rows = [];
-    const add = (txt, font, color, gap, lh) => wrap(txt, font, W - 2*P).forEach((l, i) => rows.push({l, font, color, gap: i ? 0 : gap, lh}));
-    add("АКТ ОТРИМАННЯ ТОВАРУ", `900 34px ${F}`, "#000", 0, 42);
-    add(`до замовлення № ${a.num}`, `500 22px ${F}`, "#555", 4, 30);
-    add(`Дата: ${a.date}     Час: ${a.time}`, `700 22px ${F}`, "#000", 26, 32);
-    add(`Отримувач: ${a.signer}`, `500 22px ${F}`, "#000", 8, 32);
-    if(a.addr) add(`Адреса доставки: ${a.addr}`, `500 22px ${F}`, "#000", 4, 32);
-    add(`Перевізник: The Logistics · водій ${a.driver}${a.car ? " · " + a.car : ""}`, `500 20px ${F}`, "#444", 4, 30);
-    add("ТОВАР", `800 18px ${F}`, "#777", 26, 28);
-    a.items.forEach((it, i) => add(`${i + 1}. ${it}`, `500 22px ${F}`, "#000", 2, 31));
-    if(a.partial && a.ret) add(`Не отримано: ${a.ret}`, `700 22px ${F}`, "#c0261b", 10, 31);
-    if(a.paid) add(`Оплата при отриманні: ${a.paid}`, `500 22px ${F}`, "#000", 14, 31);
-    add(a.text, `600 23px ${F}`, "#000", 26, 34);
-    const top = 70, signH = 210;
-    let h = top; rows.forEach(r => h += r.gap + r.lh); h += 40 + signH + 70;
-    c.width = W; c.height = Math.ceil(h);
-    x.fillStyle = "#fff"; x.fillRect(0, 0, W, c.height);
-    x.fillStyle = "#000"; x.fillRect(0, 0, W, 10);
-    let y = top; x.textBaseline = "alphabetic";
-    rows.forEach(r => { y += r.gap + r.lh; x.font = r.font; x.fillStyle = r.color; x.fillText(r.l, P, y - 8); });
-    y += 40;
-    x.strokeStyle = "#ddd"; x.lineWidth = 2; x.strokeRect(P, y, W - 2*P, signH);
-    x.font = `700 18px ${F}`; x.fillStyle = "#777"; x.fillText("ПІДПИС ОТРИМУВАЧА", P + 16, y + 30);
-    const fin = () => {
-      x.strokeStyle = "#999"; x.lineWidth = 1.5; x.beginPath(); x.moveTo(P + 16, y + signH - 40); x.lineTo(W - P - 16, y + signH - 40); x.stroke();
-      x.font = `500 18px ${F}`; x.fillStyle = "#555"; x.fillText(`${a.signer} · ${a.date} ${a.time}`, P + 16, y + signH - 14);
-      x.font = `500 16px ${F}`; x.fillStyle = "#999"; x.fillText("Підписано електронно в програмі The Logistics · Доставка", P, c.height - 28);
-      res(c.toDataURL("image/jpeg", 0.8));
-    };
-    if(!signUrl) { x.font = `italic 500 22px ${F}`; x.fillStyle = "#c0261b"; x.fillText("Без підпису", P + 16, y + 110); return fin(); }
-    const im = new Image();
-    im.onload = () => { const bw = W - 2*P - 32, bh = signH - 80, k = Math.min(bw / im.width, bh / im.height); x.drawImage(im, P + 16, y + 38, im.width * k, im.height * k); fin(); };
-    im.onerror = fin; im.src = signUrl;
+function loadImg(src) { return new Promise(r => { if(!src) return r(null); const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; }); }
+async function actImage(a, signUrl) {
+  const [sig, ...invs] = await Promise.all([loadImg(signUrl), ...(a.inv || []).map(loadImg)]);
+  const inv = invs.filter(Boolean);
+  const W = 1000, P = 64, c = document.createElement("canvas"), x = c.getContext("2d"), IW = W - 2 * P;
+  const F = "Roboto, 'Helvetica Neue', Arial, sans-serif";
+  const wrap = (txt, font, maxW) => { x.font = font; const out = []; String(txt).split("\n").forEach(par => { let line = ""; par.split(/\s+/).forEach(w => { const t2 = line ? line + " " + w : w; if(x.measureText(t2).width > maxW && line) { out.push(line); line = w; } else line = t2; }); out.push(line); }); return out; };
+  const rows = [];   // текстові рядки або зображення накладної
+  const add = (txt, font, color, gap, lh) => wrap(txt, font, IW).forEach((l, i) => rows.push({l, font, color, gap: i ? 0 : gap, lh}));
+  add("АКТ ОТРИМАННЯ ТОВАРУ", `900 34px ${F}`, "#000", 0, 42);
+  add(`до замовлення № ${a.num}`, `500 22px ${F}`, "#555", 4, 30);
+  add(`Дата: ${a.date}     Час: ${a.time}`, `700 22px ${F}`, "#000", 26, 32);
+  add(`Отримувач: ${a.signer}`, `500 22px ${F}`, "#000", 8, 32);
+  if(a.addr) add(`Адреса доставки: ${a.addr}`, `500 22px ${F}`, "#000", 4, 32);
+  add(`Перевізник: The Logistics · водій ${a.driver}${a.car ? " · " + a.car : ""}`, `500 20px ${F}`, "#444", 4, 30);
+  add("ТОВАР", `800 18px ${F}`, "#777", 26, 28);
+  a.items.forEach((it, i) => add(`${i + 1}. ${it}`, `500 22px ${F}`, "#000", 2, 31));
+  if(a.partial && a.ret) add(`Не отримано: ${a.ret}`, `700 22px ${F}`, "#c0261b", 10, 31);
+  if(inv.length) {
+    add(`ВИДАТКОВА НАКЛАДНА${inv.length > 1 ? ` (${inv.length} стор.)` : ""}`, `800 18px ${F}`, "#777", 26, 28);
+    inv.forEach((im, i) => rows.push({img: im, gap: i ? 14 : 10, lh: Math.round(im.height * Math.min(1, IW / im.width)) + 4}));
+  }
+  if(a.paid) add(`Оплата при отриманні: ${a.paid}`, `500 22px ${F}`, "#000", 14, 31);
+  add(a.text, `600 23px ${F}`, "#000", 26, 34);
+  const top = 70, signH = 210;
+  let h = top; rows.forEach(r => h += r.gap + r.lh); h += 40 + signH + 70;
+  c.width = W; c.height = Math.ceil(h);
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, c.height);
+  x.fillStyle = "#000"; x.fillRect(0, 0, W, 10);
+  let y = top; x.textBaseline = "alphabetic";
+  rows.forEach(r => {
+    if(r.img) {
+      y += r.gap; const k = Math.min(1, IW / r.img.width), w = r.img.width * k, hh = r.img.height * k;
+      x.drawImage(r.img, P, y, w, hh); x.strokeStyle = "#d4d4d8"; x.lineWidth = 2; x.strokeRect(P, y, w, hh);
+      y += r.lh; return;
+    }
+    y += r.gap + r.lh; x.font = r.font; x.fillStyle = r.color; x.fillText(r.l, P, y - 8);
   });
+  y += 40;
+  x.strokeStyle = "#ddd"; x.lineWidth = 2; x.strokeRect(P, y, IW, signH);
+  x.font = `700 18px ${F}`; x.fillStyle = "#777"; x.fillText("ПІДПИС ОТРИМУВАЧА", P + 16, y + 30);
+  if(sig) { const bw = IW - 32, bh = signH - 80, k = Math.min(bw / sig.width, bh / sig.height); x.drawImage(sig, P + 16, y + 38, sig.width * k, sig.height * k); }
+  else { x.font = `italic 500 22px ${F}`; x.fillStyle = "#c0261b"; x.fillText("Без підпису", P + 16, y + 110); }
+  x.strokeStyle = "#999"; x.lineWidth = 1.5; x.beginPath(); x.moveTo(P + 16, y + signH - 40); x.lineTo(W - P - 16, y + signH - 40); x.stroke();
+  x.font = `500 18px ${F}`; x.fillStyle = "#555"; x.fillText(`${a.signer} · ${a.date} ${a.time}`, P + 16, y + signH - 14);
+  x.font = `500 16px ${F}`; x.fillStyle = "#999"; x.fillText("Підписано електронно в програмі The Logistics · Доставка", P, c.height - 28);
+  return c.toDataURL("image/jpeg", inv.length ? 0.85 : 0.8);
 }
 function initSignPad() {
   const c = document.getElementById("signPad"); if(!c || !dlv) return;
@@ -4570,14 +4611,76 @@ async function showInvoice(id) {
   const o = orders.find(x => x.id === id) || {};
   openImages(imgs, 0, `Видаткова · №${o.num || "—"} · ${o.client || ""}`);
 }
-// перегляд кількох сторінок: гортаються вниз, дотик по фону закриває
+// перегляд із масштабом: два пальці — збільшити/зменшити, один — рухати, подвійний дотик — ×2.5,
+// на ПК — коліщатко миші; стрілки й свайп — інша сторінка
 function openImages(list, start, title) {
-  const v = document.createElement("div"); v.className = "viewer pages";
-  v.innerHTML = `<div class="pg-bar"><b>${esc(title || "")}</b><span>${list.length > 1 ? list.length + " стор." : ""}</span><button aria-label="Закрити">×</button></div>
-    <div class="pg-list">${list.map((d, i) => `<img src="${safeImg(d)}" alt="Сторінка ${i + 1}" id="pgimg${i}" onclick="event.stopPropagation();this.classList.toggle('zoom')">`).join("")}</div>`;
-  v.onclick = e => { if(e.target === v || e.target.closest(".pg-bar button")) v.remove(); };
+  if(!list || !list.length) return;
+  let idx = Math.min(Math.max(0, start || 0), list.length - 1), s = 1, tx = 0, ty = 0;
+  const v = document.createElement("div"); v.className = "zv";
+  v.innerHTML = `<div class="zv-bar"><b>${esc(title || "")}</b><span class="zv-n"></span><button class="zv-x" aria-label="Закрити">×</button></div>
+    <div class="zv-stage"><img class="zv-img" alt="${esc(title || "Зображення")}" draggable="false"></div>
+    <div class="zv-ctl"><button data-a="prev" aria-label="Попередня">‹</button><button data-a="out" aria-label="Зменшити">−</button><button data-a="fit" class="zv-pct" aria-label="Як було">100%</button><button data-a="in" aria-label="Збільшити">+</button><button data-a="next" aria-label="Наступна">›</button></div>`;
   document.body.appendChild(v);
-  const el = document.getElementById("pgimg" + (start || 0)); if(el && start) el.scrollIntoView({block: "start"});
+  const prevOv = document.body.style.overflow; document.body.style.overflow = "hidden";
+  const stage = v.querySelector(".zv-stage"), img = v.querySelector(".zv-img"), pct = v.querySelector(".zv-pct");
+  const clamp = () => {
+    s = Math.min(8, Math.max(1, s));
+    const mx = Math.max(0, (img.offsetWidth * s - stage.clientWidth) / 2), my = Math.max(0, (img.offsetHeight * s - stage.clientHeight) / 2);
+    tx = Math.min(mx, Math.max(-mx, tx)); ty = Math.min(my, Math.max(-my, ty));
+  };
+  const apply = anim => { clamp(); img.style.transition = anim ? "transform .2s ease" : "none"; img.style.transform = `translate(${tx}px,${ty}px) scale(${s})`; pct.textContent = Math.round(s * 100) + "%"; };
+  const zoomAt = (ns, cx, cy, anim) => {   // cx, cy — від центру сцени
+    ns = Math.min(8, Math.max(1, ns)); const k = ns / s;
+    tx = cx - (cx - tx) * k; ty = cy - (cy - ty) * k; s = ns; apply(anim);
+  };
+  const rel = (px, py) => { const r = stage.getBoundingClientRect(); return [px - r.left - r.width / 2, py - r.top - r.height / 2]; };
+  const show = i => {
+    idx = (i + list.length) % list.length; s = 1; tx = ty = 0;
+    img.src = safeImg(list[idx]); apply();
+    v.querySelector(".zv-n").textContent = list.length > 1 ? `${idx + 1} / ${list.length}` : "";
+    v.querySelectorAll('[data-a="prev"],[data-a="next"]').forEach(b => b.style.visibility = list.length > 1 ? "" : "hidden");
+  };
+  const close = () => { v.remove(); document.body.style.overflow = prevOv; document.removeEventListener("keydown", key); };
+  const key = e => { if(e.key === "Escape") close(); else if(e.key === "ArrowLeft") show(idx - 1); else if(e.key === "ArrowRight") show(idx + 1); else if(e.key === "+" || e.key === "=") zoomAt(s * 1.4, 0, 0, true); else if(e.key === "-") zoomAt(s / 1.4, 0, 0, true); };
+  document.addEventListener("keydown", key);
+  v.querySelector(".zv-x").onclick = close;
+  v.querySelector(".zv-ctl").onclick = e => {
+    const a = (e.target.closest("button") || {}).dataset?.a;
+    if(a === "prev") show(idx - 1); else if(a === "next") show(idx + 1);
+    else if(a === "in") zoomAt(s * 1.5, 0, 0, true); else if(a === "out") zoomAt(s / 1.5, 0, 0, true);
+    else if(a === "fit") { s = 1; tx = ty = 0; apply(true); }
+  };
+  stage.addEventListener("wheel", e => { e.preventDefault(); const [cx, cy] = rel(e.clientX, e.clientY); zoomAt(s * Math.pow(1.0018, -e.deltaY), cx, cy); }, {passive: false});
+  const pts = new Map(); let pinch = null, swipe = null, lastTap = 0;
+  stage.addEventListener("pointerdown", e => {
+    stage.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    if(pts.size === 2) { const [a, b] = [...pts.values()]; pinch = {d: Math.hypot(a.x - b.x, a.y - b.y), s}; swipe = null; }
+    else if(pts.size === 1) {
+      const now = Date.now();
+      if(now - lastTap < 300) { const [cx, cy] = rel(e.clientX, e.clientY); zoomAt(s > 1.05 ? 1 : 2.5, cx, cy, true); lastTap = 0; swipe = null; return; }
+      lastTap = now; swipe = {x: e.clientX, y: e.clientY, s};
+    }
+  });
+  stage.addEventListener("pointermove", e => {
+    const p = pts.get(e.pointerId); if(!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if(pts.size === 2 && pinch) {
+      const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+      const [cx, cy] = rel((a.x + b.x) / 2, (a.y + b.y) / 2);
+      zoomAt(pinch.s * d / pinch.d, cx, cy); tx += dx / 2; ty += dy / 2; apply();
+    } else if(pts.size === 1 && s > 1) { tx += dx; ty += dy; apply(); }
+  });
+  const up = e => {
+    pts.delete(e.pointerId);
+    if(pts.size < 2) pinch = null;
+    if(swipe && pts.size === 0 && swipe.s <= 1.01 && s <= 1.01 && list.length > 1) {
+      const dx = e.clientX - swipe.x; if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(e.clientY - swipe.y)) show(idx + (dx < 0 ? 1 : -1));
+    }
+    if(pts.size === 0) swipe = null;
+  };
+  stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up);
+  img.onload = () => apply();
+  show(idx);
 }
 async function renderModalPhotos(id) {
   const box = document.getElementById("fPhotos"), hd = document.getElementById("fPhotosHd");
@@ -4699,7 +4802,7 @@ function copyText(t, okMsg) {
 let geoWatch = null, geoLast = null, geoErr = "", leafletMap = null, leafletLayer = null;
 function geoEnabled() { try { return localStorage.getItem("ld_geo") !== "0"; } catch(e) { return true; } }
 function geoSync() {
-  const should = !!(me && me.role === "driver" && me.driver && fbDb && geoEnabled() && "geolocation" in navigator);
+  const should = !!(me && isDrvRole(me.role) && me.driver && fbDb && geoEnabled() && "geolocation" in navigator);
   if(should && geoWatch === null) {
     geoWatch = navigator.geolocation.watchPosition(onGeo, err => {
       geoErr = err.code === 1 ? "Доступ до геопозиції заборонено в налаштуваннях телефону" : "Не вдається визначити позицію";
@@ -4724,7 +4827,7 @@ function distM(a, b, c, d) { const r = Math.PI/180, x = (d-b)*r*Math.cos((a+c)/2
 function renderLocPill() {
   const el = document.getElementById("locPill"); if(!el) return;
   const g = document.getElementById("geoOn"); if(g) g.checked = geoEnabled();
-  if(!me || me.role !== "driver") { el.innerHTML = ""; return; }
+  if(!me || !isDrvRole(me.role)) { el.innerHTML = ""; return; }
   const on = geoWatch !== null && !geoErr;
   const txt = !fbDb ? "Геопозиція передається, коли програма підключена до бази"
     : geoErr ? geoErr
