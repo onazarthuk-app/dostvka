@@ -41,7 +41,7 @@ exports.orderPush = onValueWritten(
     }
     // 1) Водію: доставку погоджено і призначено на нього
     if (after.driver && !isReq(after) && (!before || before.driver !== after.driver || isReq(before)) && !closed) {
-      tokensOf((u) => u.role === "driver" && u.driver === after.driver).forEach((t) =>
+      tokensOf((u) => (u.role === "driver" || u.role === "driverph") && u.driver === after.driver).forEach((t) =>
         msgs.push({ t, title: "Нова доставка", body: `${after.date} ${when} · ${after.addr || ""} · ${after.client || ""}` }));
     }
     // 2) Логістам: водій змінив статус

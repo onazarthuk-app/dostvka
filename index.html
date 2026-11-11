@@ -852,6 +852,12 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
 .viewer-bar .settings-btn.dark{background:var(--ink);color:#fff}
 .bk-last{font-size:13px;font-weight:700;margin:6px 0 10px;color:var(--text2)}
 .bk-last.old{color:var(--red)}
+.ph-sw{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;padding:6px 0;width:100%}
+.ph-sw input{position:absolute;opacity:0;pointer-events:none}
+.ph-sw span{position:relative;width:38px;height:22px;border-radius:11px;background:var(--line2);transition:.2s;flex-shrink:0}
+.ph-sw span::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.ph-sw input:checked+span{background:var(--green)}
+.ph-sw input:checked+span::after{left:19px}
 .btn-del{border:1px solid var(--red-line,#f3c4bf);background:#fff;color:var(--red);border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer}
 .btn-del:hover{background:var(--red);color:#fff}
 .inv-box{margin-bottom:6px}
@@ -3062,7 +3068,7 @@ function onSignedOut() {
   stopData(); stopAdmin();
   if(userRef) userRef.off();
   if(geoWatch !== null) { navigator.geolocation.clearWatch(geoWatch); geoWatch = null; }
-  try { localStorage.removeItem("ld_me"); } catch(e) {}
+  try { localStorage.removeItem("ld_me"); localStorage.removeItem("ld_orders"); } catch(e) {}
   userRef = null; currentUid = null; me = null; loginLogged = false;
   orders = []; cloudOrders = {}; cloudMeta = null;
   document.body.classList.remove("role-admin","role-user","role-manager","role-driver","role-driverph","role-warehouse","role-viewer");
@@ -3254,7 +3260,8 @@ async function clearAppCache() {
 }
 function onDbError(err) {
   console.error(err);
-  toast("Помилка доступу до бази: " + err.message, "err", 5000);
+  if(isDenied(err) && isStore()) toast("Немає доступу до ваших заявок. Адміністратору: опублікуйте в Firebase database.rules.json з останнього архіву.", "err", 12000);
+  else toast("Помилка доступу до бази: " + err.message, "err", 5000);
   loadLocal(); renderAll(); hideSplash();
 }
 
@@ -3300,6 +3307,7 @@ function saveData(label) {
   const allowed = me.role === "warehouse" ? WH_FIELDS : DRIVER_FIELDS;
   const now = Date.now(), uid = me.uid, name = myName();
   const updates = {}, events = [];
+  let seqBump = 0;
   const cur = {};
   orders.forEach(o => { cur[fbKey(o.id)] = o; });
   const stamp = {updatedAt: now, updatedBy: uid, updatedByName: name};
@@ -3307,13 +3315,15 @@ function saveData(label) {
     const o = cur[k], base = cloudOrders[k];
     if(!base) {
       if(driverOnly) { toast("Додавати доставки може лише логіст","err"); revertToCloud(); return; }
+      // стара копія чужої доставки з кешу пристрою — не наша нова доставка, пропускаємо
+      if(!can("plan") && o.createdAt && o.createdBy !== uid) continue;
       if(!o.createdAt) { o.createdAt = now; o.createdBy = uid; o.createdByName = name; }
       Object.assign(o, stamp);
       const rec = clean(o), ph = rec.phone; delete rec.phone;
       updates["app/orders/" + k] = rec;
       if(ph) updates["app/contacts/" + k] = {phone: ph};
       const nn = parseInt(o.num) || 0;
-      if(nn > globalSeq) { globalSeq = nn; updates["app/seq"] = nn; }
+      if(nn > globalSeq) { globalSeq = nn; seqBump = Math.max(seqBump, nn); }
       events.push({action:"create", orderId:o.id, client:o.client||"", date:o.date||"", text:"Додав доставку: " + orderLabel(o)});
     } else {
       const prev = mergedOrder(k);
@@ -3408,11 +3418,48 @@ function saveData(label) {
   }
   if(updates["app/meta"]) cloudMeta = JSON.parse(JSON.stringify(updates["app/meta"]));
 
-  fbDb.ref().update(updates).catch(err => {
-    console.error(err);
-    toast("Не вдалося зберегти: " + (err.code === "PERMISSION_DENIED" || /permission/i.test(err.message) ? "недостатньо прав" : err.message), "err", 5000);
-    resync();
-  });
+  const newKeys = events.filter(e => e.action === "create").map(e => fbKey(e.orderId));
+  fbDb.ref().update(updates).then(() => bumpSeq(seqBump)).catch(err => saveFailed(err, updates, newKeys, seqBump));
+}
+// спільний лічильник номерів: транзакція, тож застарілий номер на одному пристрої не блокує збереження
+function bumpSeq(n) {
+  if(!n || !fbDb) return;
+  fbDb.ref("app/seq").transaction(v => (+v || 0) >= n ? undefined : n).catch(e => console.warn("seq", e));
+}
+const isDenied = err => err && (err.code === "PERMISSION_DENIED" || /permission/i.test(err.message || ""));
+// якщо база відхилила зміни — зберігаємо по частинах усе, що дозволено, і пояснюємо, що саме не так
+async function saveFailed(err, updates, newKeys, seqBump) {
+  console.error(err);
+  if(!isDenied(err)) { toast("Не вдалося зберегти: " + err.message, "err", 6000); resync(); return; }
+  const groups = {};
+  Object.keys(updates).forEach(p => { const m = p.match(/^app\/(?:orders|contacts|photos)\/([^/]+)/); const g = m ? m[1] : "_"; (groups[g] ||= {})[p] = updates[p]; });
+  const failed = [];
+  if(Object.keys(groups).length > 1) {
+    for(const [g, up] of Object.entries(groups)) {
+      if(g === "_") continue;
+      try { await fbDb.ref().update(up); } catch(e) { failed.push(g); }
+    }
+    if(groups._) fbDb.ref().update(groups._).catch(() => {});
+  } else failed.push(...Object.keys(groups));
+  const newFailed = newKeys.filter(k => failed.includes(k));
+  if(!failed.length) { bumpSeq(seqBump); toast("Збережено ✓", "ok"); resync(); return; }
+  if(newKeys.length && !newFailed.length) { bumpSeq(seqBump); toast("Нову доставку збережено ✓. Частину старих змін база не прийняла — їх скасовано.", "warn", 6000); resync(); return; }
+  const why = await diagnoseAccess();
+  toast("Не вдалося зберегти: недостатньо прав. " + why, "err", 12000);
+  writeLog([{action: "error", text: `Помилка збереження (недостатньо прав) · роль: ${ROLES[me.role] || me.role} · ${why}`}]);
+  resync();
+}
+async function diagnoseAccess() {
+  try {
+    const u = (await fbDb.ref("app/users/" + me.uid).once("value")).val() || {};
+    if(u.role !== me.role) return `У базі ваша роль «${ROLES[u.role] || u.role || "немає"}». Оновіть сторінку.`;
+    if(!can("edit")) return `Роль «${ROLES[me.role]}» не може створювати доставки. Попросіть адміністратора дати роль «Магазин» або «Логіст».`;
+    if(isStore()) {
+      try { await fbDb.ref("app/orders").orderByChild("createdBy").equalTo(me.uid).limitToFirst(1).once("value"); }
+      catch(e) { return "Правила бази у Firebase застарілі: адміністратору потрібно вставити database.rules.json з останнього архіву і натиснути Publish."; }
+    }
+    return "Повідомте адміністратора: перевірте, що в Firebase опубліковано database.rules.json з останнього архіву.";
+  } catch(e) { return "Немає зв'язку з базою."; }
 }
 
 function writeLog(events, updates) {
@@ -3445,9 +3492,11 @@ async function resync() {
   } catch(e) { revertToCloud(); }
 }
 
+// кеш на пристрої окремий для кожного акаунта: інакше на спільному комп'ютері магазин отримав би чужі доставки
+function ordersCacheKey() { return fbDb && me && me.uid ? "ld_orders:" + me.uid : "ld_orders"; }
 function saveLocal() {
   try {
-    localStorage.setItem("ld_orders",  JSON.stringify(orders));
+    localStorage.setItem(ordersCacheKey(), JSON.stringify(orders));
     localStorage.setItem("ld_drivers", JSON.stringify(masters));
     localStorage.setItem("ld_region",  mapRegion);
     localStorage.setItem("ld_warehouse", warehouse);
@@ -3458,7 +3507,8 @@ function saveLocal() {
 }
 function loadLocal() {
   try {
-    const o = localStorage.getItem("ld_orders"); if(o) orders = JSON.parse(o);
+    const o = localStorage.getItem(ordersCacheKey()); orders = o ? JSON.parse(o) : (fbDb ? [] : orders);
+    if(fbDb && me && !can("plan")) orders = orders.filter(x => ownStore(x) && (myDriver() === null || x.driver === me.driver || !me.driver));
     const m = localStorage.getItem("ld_drivers"); if(m) masters = JSON.parse(m);
     const r = localStorage.getItem("ld_region"); if(r !== null) mapRegion = r;
     const w = localStorage.getItem("ld_warehouse"); if(w !== null) warehouse = w;
@@ -3685,6 +3735,7 @@ function deleteUser(uid) {
   writeLog([{action: "admin", text: `Видалив користувача «${nm}»${u.email ? " · " + u.email : ""} (${ROLES[u.role] || u.role})`}], up);
   fbDb.ref().update(up).then(() => toast(`${nm}: видалено`, "ok")).catch(err => { toast("Не вдалося: " + err.message, "err"); renderUsers(); });
 }
+function setDriverPhones(uid, on) { setUserRole(uid, on ? "driverph" : "driver"); }
 function setUserWh(uid, id) {
   const u = usersCache[uid]; if(!u || !fbDb) return;
   const w = whList().find(x => x.id === id);
@@ -3947,7 +3998,8 @@ function renderUsers() {
       .filter(r => (!self || ["admin","user","manager","driver","driverph","warehouse","viewer"].includes(r)) && (can("admin") || r !== "admin"))
       .map(r => `<option value="${r}" ${u.role===r?"selected":""}>${ROLES[r]}</option>`).join("");
     const whSel = u.role === "warehouse" && whList().length ? `<select class="inp" onchange="setUserWh('${uid}', this.value)"><option value="">— усі склади —</option>${whList().map(w => `<option value="${esc(w.id)}" ${u.wh===w.id?"selected":""}>${esc(w.name)}</option>`).join("")}</select>` : "";
-    const drvSel = whSel + (isDrvRole(u.role) ? `<select class="inp" onchange="setUserDriver('${uid}', this.value)"><option value="">— оберіть водія —</option>${masters.map(m => `<option value="${esc(m.name)}" ${u.driver===m.name?"selected":""}>${esc(m.name)}</option>`).join("")}</select>` : "");
+    const phSw = isDrvRole(u.role) && !self ? `<label class="ph-sw" title="Дозволити цьому водію бачити телефони клієнтів своїх доставок"><input type="checkbox" ${u.role === "driverph" ? "checked" : ""} onchange="setDriverPhones('${uid}', this.checked)"><span></span>📞 Бачить телефони клієнтів</label>` : "";
+    const drvSel = phSw + whSel + (isDrvRole(u.role) ? `<select class="inp" onchange="setUserDriver('${uid}', this.value)"><option value="">— оберіть водія —</option>${masters.map(m => `<option value="${esc(m.name)}" ${u.driver===m.name?"selected":""}>${esc(m.name)}</option>`).join("")}</select>` : "");
     const uwh = u.role === "warehouse" ? whList().find(w => w.id === u.wh) : null;
     return `<div class="user-row ${u.role==="pending"?"pending":""}">
       <div class="user-top">
