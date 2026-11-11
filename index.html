@@ -852,6 +852,7 @@ body.role-viewer .hdr-user .avatar,body.role-manager .hdr-user .avatar,body.role
 .viewer-bar .settings-btn.dark{background:var(--ink);color:#fff}
 .bk-last{font-size:13px;font-weight:700;margin:6px 0 10px;color:var(--text2)}
 .bk-last.old{color:var(--red)}
+.drv-warn{background:var(--red-soft,#fcedec);color:var(--red);border:1px solid #f3c4bf;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:12px}
 .ph-sw{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;padding:6px 0;width:100%}
 .ph-sw input{position:absolute;opacity:0;pointer-events:none}
 .ph-sw span{position:relative;width:38px;height:22px;border-radius:11px;background:var(--line2);transition:.2s;flex-shrink:0}
@@ -1810,6 +1811,10 @@ function renderSchedule() {
   const monthOrders = visibleOrders(getMonthOrders());
   const drvMode = myDriver() !== null;
   let html = "";
+  if(drvMode && fbDb) {
+    if(!me.driver) html += `<div class="drv-warn">⚠ Ваш акаунт ще не прив'язаний до водія, тому доставок не видно. Попросіть логіста: «Ще → Користувачі» → вибрати ваше ім'я у списку водіїв.</div>`;
+    else if(masters.length && !masters.some(m => m.name === me.driver)) html += `<div class="drv-warn">⚠ Ви прив'язані до «${esc(me.driver)}», але такого водія немає в налаштуваннях. Логісту: перевірте прив'язку в «Ще → Користувачі».</div>`;
+  }
   document.body.classList.toggle("board-on", boardActive());
   if(isWarehouse()) return renderWarehouse(box, monthOrders, todayKey);
   if(boardActive()) return renderBoard(box);
@@ -2340,7 +2345,12 @@ function saveOrder() {
     if(!prev) { f.status = "request"; f.time = ""; f.timeTo = ""; f.driver = ""; f.seq = 0; }
     else ["status","time","timeTo","driver","seq","collected","problem"].forEach(k => { f[k] = prev[k] ?? f[k]; });
   } else if(["request","new","assigned"].includes(f.status)) {
-    if(!f.time) f.status = "request";
+    if(!f.time && f.driver && (!prev || isReq(prev) || f.status === "request")) {
+      if(confirm(`Час доставки не вказано.\n\nOK — призначити ${f.driver} без точного часу (водій і склад побачать доставку одразу).\nСкасувати — повернутися і вказати час.`)) {
+        f.status = "assigned";
+        if(!(prev && prev.agreedAt)) { f.agreedAt = Date.now(); f.agreedBy = myName(); agreedNow = !!prev && isReq(prev); }
+      } else { setTimeout(() => document.getElementById("fTime").focus(), 50); return; }
+    } else if(!f.time) f.status = "request";
     else {
       if(f.status === "request") f.status = f.driver ? "assigned" : "new";
       if(!(prev && prev.agreedAt)) { f.agreedAt = Date.now(); f.agreedBy = myName(); agreedNow = !!prev && isReq(prev); }
@@ -4006,7 +4016,7 @@ function renderUsers() {
         <div class="avatar">${esc(initials(fullName(u) || u.email))}</div>
         <div style="flex:1;min-width:0">
           <div class="user-name">${esc(fullName(u) || "Без імені")}${self ? ' <span class="muted">(ви)</span>' : ""}</div>
-          <div class="user-email">${esc(u.email||"")}${isDrvRole(u.role) ? ` · <b style="color:${u.driver ? "var(--green)" : "var(--red)"}">${esc(u.driver || "не прив'язано")}</b>` : ""}${u.role === "warehouse" && whMulti() ? ` · <b>${uwh ? esc(uwh.name) : "усі склади"}</b>` : ""}</div>
+          <div class="user-email">${esc(u.email||"")}${isDrvRole(u.role) ? ` · <b style="color:${u.driver && masters.some(m => m.name === u.driver) ? "var(--green)" : "var(--red)"}">${esc(u.driver ? (masters.some(m => m.name === u.driver) ? u.driver : u.driver + " (немає в списку водіїв)") : "не прив'язано — доставок не бачить")}</b>${u.driver ? ` · сьогодні ${orders.filter(o => o.driver === u.driver && o.date === fmtDate(new Date()) && !isReq(o) && isActive(o)).length}` : ""}` : ""}${u.role === "warehouse" && whMulti() ? ` · <b>${uwh ? esc(uwh.name) : "усі склади"}</b>` : ""}</div>
         </div>
         <span class="role-pill ${u.role}">${ROLES[u.role]||u.role}</span>
       </div>
